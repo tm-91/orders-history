@@ -33,39 +33,6 @@ class View
 	}
 
 	public function render(){
-		/*static $called = false;
-
-        if ($called) {
-            return;
-        }
-
-        $called = true;
-
-        $vars = $this->viewVars;
-        $vars["_locale"] = $this->app->getLocale();
-
-        // separate scopes
-        $render = function () use ($tpl, $vars) {
-            $template = explode("/", $tpl, 2);
-            if (count($template) == 2) {
-                if ($template[0] == "." or $template[0] == "..") {
-                    return;
-                }
-                $__t = $template[0] . "/". basename($template[1], '.php');
-            } elseif (count($template) == 1) {
-                $__t = basename($template[0], '.php');
-            } else {
-                return;
-            }
-            unset($template, $tpl);
-            unset($vars['__t']);
-            extract($vars);
-            require __DIR__ . '/../View/' . $__t . '.php';
-        };*/
-
-        \Application\App::log('View $this->_calledController: ' . $this->_calledController);
-        \Application\App::log('View $this->_calledAction: ' . $this->_calledAction);
-
         extract($this->_params);
         require __DIR__ . DIRECTORY_SEPARATOR . $this->_controller . DIRECTORY_SEPARATOR . $this->_action . '.php' ;
 	}

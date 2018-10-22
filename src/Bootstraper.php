@@ -6,44 +6,6 @@ class Bootstraper{
     protected static $_defaultConfigFile = __DIR__. '/Config.php';
     protected static $_config;
 
-//    public function fetchModule(array $pathElements){
-//        $module = false;
-//        switch (count($pathElements)) {
-//            case 0:
-//                /*
-//                 * /
-//                 */
-//                $module = self::DEFAULT_MODULE;
-//                break;
-//            case 2:
-//                /*
-//                * module/controller
-//                * controller/action
-//                */
-//                $elem = ucfirst($pathElements[0]);
-//                if (self::moduleExists($elem)){
-//                    $module = $elem;
-//                } else {
-//                    $module = self::DEFAULT_MODULE;
-//                }
-//                break;
-//            default:
-//                /*
-//                 * module/controller/action
-//                 * module/
-//                 */
-//                $module = ucfirst($pathElements[0]);
-//                break;
-//        }
-//        return $module;
-//    }
-//
-//    public function explodeRequestUrl(){
-//        $path = trim($_GET['q'], '/');
-//        $path = str_replace('\\', '', $path);
-//        return $path == '' ? array() : explode('/', $path);
-//    }
-
     public static function processRequestUrl(){
         $path = trim($_GET['q'], '/');
 
@@ -129,9 +91,6 @@ class Bootstraper{
             }
         }
 
-//        if (getenv('DREAMCOMMERCE_DEBUG')) {
-//            $debug = true;
-//        }
         define("DREAMCOMMERCE_DEBUG", $debug);
 
         // log errors
@@ -147,17 +106,4 @@ class Bootstraper{
 
         self::$_config = $config;
     }
-
-    /*
-     * @var \DreamCommerce\ShopAppstoreLib\Logger
-     */
-//    protected static $_logger = false;
-//
-//    public static function log($message, $level = \Psr\Log\LogLevel::DEBUG) {
-//        if (self::$_logger === false) {
-//            self::$_logger = new \DreamCommerce\ShopAppstoreLib\Logger();
-//        }
-//        self::$_logger->log($level, $message);
-//    }
-
 }
