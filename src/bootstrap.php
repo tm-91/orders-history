@@ -16,37 +16,3 @@ spl_autoload_register(function ($class) {
 
 // composer autoloader - patched automatically
 require 'vendor/autoload.php';
-
-
-
-//
-//$config = require __DIR__. '/Config.php';
-//
-//// various PHP configuration values
-//date_default_timezone_set($config['timezone']);
-//ini_set('display_errors', $config['php']['display_errors']);
-//
-//// check debug mode options
-//$debug = false;
-//if (isset($config['debug'])) {
-//    if ($config['debug']) {
-//        $debug = true;
-//    }
-//}
-//if (getenv('DREAMCOMMERCE_DEBUG')) {
-//    $debug = true;
-//}
-//define("DREAMCOMMERCE_DEBUG", $debug);
-//
-//// log errors
-//$logFile = "php://stdout";
-//if (isset($config['logFile'])) {
-//    if ($config['logFile']) {
-//        $logFile = $config['logFile'];
-//    } else {
-//        $config['logFile'] = false;
-//    }
-//}
-//define("DREAMCOMMERCE_LOG_FILE", $logFile);
-//
-//return $config;

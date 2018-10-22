@@ -23,7 +23,7 @@ class View
 	}
 
 	public function isSetParam($name){
-		return array_key_exists($this->_params[$name]);
+		return array_key_exists($name, $this->_params);
 	}
 
 	public function getParam($name){
