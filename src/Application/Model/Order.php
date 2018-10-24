@@ -3,8 +3,6 @@
 namespace Application\Model;
 
 
-use Application\App;
-
 class Order
 {
     protected $_shopId;
@@ -50,7 +48,6 @@ class Order
             $data = $stm->fetch();
             return json_decode($data[0], true);
         }
-        \Webhooks\App::log('FAILED TO EXECUTE getCurrentState()');
         return false;
     }
 
@@ -68,31 +65,16 @@ class Order
 
     // todo
     /**
-     * @return array of objects type \Application\Model\Entity\OrderChange
+     * @return array|bool of objects type \Application\Model\Entity\OrderChange
      */
     public function getHistory(){
-        // $db = \DbHandler::getDb();
-        // $db->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
-
-        $si = $this->getShopId();
-        $oi = $this->getId();
-\Application\App::log('getHistory() shop id: ' . gettype($si) . '-' . $si);
-\Application\App::log('getHistory() order id: ' . gettype($oi) . '-' . $oi);
-
         $stm = \DbHandler::getDb()->prepare('SELECT date, added, edited, removed FROM orders_history WHERE shop_id=:shopId AND order_id=:orderId ORDER BY date');
         $stm->bindValue(':shopId', $this->getShopId(), \PDO::PARAM_INT);
         $stm->bindValue(':orderId', $this->getId(), \PDO::PARAM_INT);
 
         if ($stm->execute()){
             $outcome = [];
-            \Application\App::log('executed getHistory()');
-            // $d = $stm->fetch();
-            // var_dump($d);
-            // \Application\App::log(print_r($d));
             while($row = $stm->fetch()) {
-               \Application\App::log('----- getHistory fetched row ----');
-    //            var_dump($row);
-    //            \Application\App::log('---------------------------------');
                 $historyEntry = new \Application\Model\Entity\OrderChange($row['shop_id'], $row['order_id'], $row['date']);
                 if (isset($row['added'])){
                     $historyEntry->setAddedData(json_decode($row['added'], true));
@@ -108,6 +90,7 @@ class Order
             return $outcome;
         } else {
             \Webhooks\App::log('getHistory error', 'error');
+            return false;
         }
     }
 
@@ -154,7 +137,6 @@ class Order
      */
     public function geDiff(array $data, $time = null)
     {
-        \Webhooks\App::log('----- in ge diff ----');
         $findEditedAndRemoved = function ($compareAgainst, $data) use (&$findEditedAndRemoved) {
             $outcome = [
                 'e'=>[],
@@ -197,31 +179,13 @@ class Order
         };
 
         $currentOrder = $this->getCurrentState();
-        \Webhooks\App::log('----- current state ----');
-        if (is_array($currentOrder)){
-            foreach($currentOrder as $key => $val) {
-                \Webhooks\App::log($key);
-            }       
-        } else {
-            \Webhooks\App::log($currentOrder);
-        }
-        \Webhooks\App::log('------------------------');
-
         if ($time === null) {
             $dt = new \DateTime();
             $dt->setTimestamp($_SERVER['REQUEST_TIME']);
             $time = $dt->format('Y-m-d H:i:s');
         }
-
-        // \Webhooks\App::log('----- incoming data -----');
-       // foreach($data as $key => $val) {
-                // \Webhooks\App::log($key);
-            // }
-        // \Webhooks\App::log('-------------------------');
-
         $changes = new \Application\Model\Entity\OrderChange($this->getShopId(), $this->getId(), $time);
         if ($currentOrder == false) {
-            \Webhooks\App::log('current state is false');
             $changes->setAddedData($data);
         } else {
             $extractedData = $findEditedAndRemoved($currentOrder, $data);
