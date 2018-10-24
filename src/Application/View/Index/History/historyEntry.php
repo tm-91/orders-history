@@ -1,5 +1,5 @@
 <table>
-
+	<?php echo "WPIS" ?>
 	<thead>
 		<tr>
 			<td>
