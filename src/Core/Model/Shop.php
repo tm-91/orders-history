@@ -50,22 +50,4 @@ class Shop
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $result['version'];
     }
-
-    /*
-     * instantiate db connection
-     * @return \PDO
-     */
-    /*public function db()
-    {
-        static $handle = null;
-        if (!$handle) {
-            $handle = new \PDO(
-                self::$config['db']['connection'],
-                self::$config['db']['user'],
-                self::$config['db']['pass']
-            );
-        }
-
-        return $handle;
-    }*/
 }

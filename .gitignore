@@ -2,3 +2,4 @@ logs/
 vendor/
 test.php
 src/Test
+.idea/

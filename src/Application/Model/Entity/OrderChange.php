@@ -10,9 +10,6 @@ class OrderChange
 	protected $_shopId;
 	protected $_orderId;
 	protected $_id;
-	const ADDED_DATA_KEY = '1';
-	const EDITED_DATA_KEY = '0';
-    const REMOVED_DATA_KEY = '-1';
 
     public function __construct($shopId, $orderId, $date){
         $this->_shopId = $shopId;
