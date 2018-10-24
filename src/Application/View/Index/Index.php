@@ -54,43 +54,9 @@
                 <?php 
                 echo 'HISTORIA EDYCJI</br></br>';
                 echo 'ilość wpisów: ' . count($historyEntries);
-                ?>
-                <?php
-                foreach ($historyEntries as $entry){
-                ?>
-                <div>
-                <?php
-                
-                    echo "Data edycji: ";
-                    echo $entry->getDate();
-                    echo '</br>';
-                ?>
-                </div>
-                <div>
-                <?php
 
-                    if ($a = $entry->getAddedData()){
-                        echo "DODANE:</br>";
-                        print_r($a);
-                        echo '</br>';
-                    }
-                    if ($e = $entry->getEditedData()){
-                        echo "EDYTOWANE:</br>";
-                        print_r($e);
-                        echo '</br>';
-                    }
-                    if ($r = $entry->getRemovedData()){
-                        echo "USUNIETE:</br>";
-                        print_r($r);
-                        echo '</br>';
-                    }
-                    echo '</br>';
-                    /*
-                    *
-                    *   TEST
-                    *
-                    */
-                }
+                foreach ($historyEntries as $entry){
+                    require 'History/historyEntry.php';
                 ?>
                 </div>
             </section>
