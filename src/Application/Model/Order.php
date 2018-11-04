@@ -196,4 +196,17 @@ class Order
         return $changes;
     }
     
+    public function removeCurrentState(){
+        $stm = \DbHandler::getDb()->prepare('DELETE FROM `orders_current_state` WHERE `shop_id`=:shopId AND `order_id`=:orderId;');
+        $stm->bindValue(':shopId', $this->_shopId, \PDO::PARAM_INT);
+        $stm->bindValue(':orderId', $this->_orderId, \PDO::PARAM_INT);
+        return $stm->execute();
+    }
+
+    public function removeHistory(){
+        $stm = \DbHandler::getDb()->prepare('DELETE FROM `orders_history` WHERE `shop_id`=:shopId AND `order_id`=:orderId;');
+        $stm->bindValue(':shopId', $this->_shopId, \PDO::PARAM_INT);
+        $stm->bindValue(':orderId', $this->_orderId, \PDO::PARAM_INT);
+        return $stm->execute();
+    }
 }
