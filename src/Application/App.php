@@ -267,6 +267,6 @@ class App extends \Core\AbstractApp
     public function getView(array $params = array()){
         $var["_locale"] = $this->getLocale();
         $namespace = '\\' . self::MODULE_NAME . '\\' . self::VIEW_NAMESPACE . '\\' . 'View';
-        return new $namespace($this->_calledController, ucfirst($this->_calledAction), $params);
+        return new $namespace($this->_calledController . DIRECTORY_SEPARATOR . ucfirst($this->_calledAction), $params);
     }
 }

@@ -54,13 +54,45 @@
                 <?php 
                 echo 'HISTORIA EDYCJI</br></br>';
                 echo 'ilość wpisów: ' . count($historyEntries);
-
-                foreach ($historyEntries as $entry){
-                    require 'History/historyEntry.php';
                 ?>
+                <div class="history-container">
+                    <?php
+                    foreach ($historyEntries as $entry){
+                        $view = new \Application\View\View('Index/History/historyEntry', ['entry' => $entry]);
+                        $view->render();
+//                        require 'History/historyEntry.php';
+//                        echo "</br></br>";
+                    }
+                    ?>
                 </div>
             </section>
         </main>
         <script src="//cdn.dcsaas.net/js/appstore-sdk.js"></script>
+        <style>
+.history-container {
+    /*max-width: 80%;*/
+    /*height: auto;*/
+}
+
+.h-entry-container {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    /* max-width: 80%; */
+    /* height: auto; */
+    padding: 5px;
+}
+
+.entry-data.date {
+    clear: left;
+}
+
+.entry-data {
+    padding: 5px;
+    margin-bottom: 10px;
+    float: left;
+    /*max-width: 20%;*/
+}
+
+        </style>
     </body>
 </html>
