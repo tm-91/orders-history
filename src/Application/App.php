@@ -17,10 +17,15 @@ class App extends \Core\AbstractApp
      */
     protected $locale = 'pl_PL';
 
+//    /**
+//     * @var array current shop metadata
+//     */
+//    public $shopData = array();
     /**
-     * @var array current shop metadata
+     * @var \Application\Model\Entity\Shop
      */
-    public $shopData = array();
+    public $_shop;
+
 
     public $moduleName = 'Application';
 
@@ -67,7 +72,7 @@ class App extends \Core\AbstractApp
     {
         parent::bootstrap();
 
-        $this->setupParams($_GET);
+        $this->params = $_GET;
 
         // check request hash and variables
         $this->validateRequest();
@@ -75,43 +80,35 @@ class App extends \Core\AbstractApp
         $this->locale = basename($this->getParam('translations'));
 
         // detect if shop is already installed
-        $shopModel = new Model\Shop();
-        $shopData = $shopModel->getInstalledShopData($this->getParam('shop'));
-        if (!$shopData) {
-            throw new \Exception('An application is not installed in this shop');
-        }
+//        $shopModel = new Model\Shop();
+//        $shopData = $shopModel->getInstalledShopData($this->getParam('shop'));
+        $this->_shop = new Model\Entity\Shop($this->getParam('shop'));
+//        if (!$shopData) {
+//            throw new \Exception('An application is not installed in this shop');
+//        }
 
-        $this->shopData = $shopData;
+//        $this->shopData = $shopData;
 
         // refresh token
-        if (strtotime($shopData['expires']) - time() < 86400) {
-            $this->refreshToken(
-                $shopData['id'],
-                $shopData['url'],
-                $shopData['refresh_token']
-            );
+        if (strtotime($this->_shop->getData('expires')) - time() < 86400) {
+//            $this->refreshToken(
+//                $shopData['id'],
+//                $shopData['url'],
+//                $shopData['refresh_token']
+//            );
+            $this->_shop->refreshToken(self::getConfig('appId'), self::getConfig('appSecret'));
         }
 
 
         // instantiate SDK client
-        $this->client = $this->instantiateClient($shopData);
+//        $this->client = $this->instantiateClient($shopData);
+        $this->client = $this->_shop->instantiateSDKClient(self::getConfig('appId'), self::getConfig('appSecret'));
     }
 
     public function run(array $data = null)
     {
         $this->bootstrap();
         $this->dispatch($data['query']);
-    }
-
-    // todo pomyśleć co z tym - wyjebać czy nie
-    public function setupParams($params)
-    {
-        /*$this->params = array(
-            'place' => $_GET['place'],
-            'shop' => $_GET['shop'],
-            'timestamp' => $_GET['timestamp'],
-        );*/
-        $this->params = $params;
     }
 
     public function getParam($param = null)
@@ -126,23 +123,23 @@ class App extends \Core\AbstractApp
         }
     }
 
-    /**
-     * instantiate client resource
-     * @param $shopData
-     * @return \DreamCommerce\ShopAppstoreLib\Client
-     */
-    public function instantiateClient($shopData)
-    {
-        /** @var OAuth $c */
-        $c = Client::factory(Client::ADAPTER_OAUTH, array(
-                'entrypoint' => $shopData['url'],
-                'client_id' => self::getConfig('appId'),
-                'client_secret' => self::getConfig('appSecret')
-            )
-        );
-        $c->setAccessToken($shopData['access_token']);
-        return $c;
-    }
+//    /**
+//     * instantiate client resource
+//     * @param $shopData
+//     * @return \DreamCommerce\ShopAppstoreLib\Client
+//     */
+//    public function instantiateClient($shopData)
+//    {
+//        /** @var OAuth $c */
+//        $c = Client::factory(Client::ADAPTER_OAUTH, array(
+//                'entrypoint' => $shopData['url'],
+//                'client_id' => self::getConfig('appId'),
+//                'client_secret' => self::getConfig('appSecret')
+//            )
+//        );
+//        $c->setAccessToken($shopData['access_token']);
+//        return $c;
+//    }
 
     /**
      * get client resource
@@ -166,39 +163,39 @@ class App extends \Core\AbstractApp
         return $this->locale;
     }
 
-    /**
+    /*
      * refresh OAuth token
      * @param array $shopData
      * @return mixed
      * @throws \Exception
      */
-    public function refreshToken($shopId, $entryPoint, $refreshToken)
-    {
-        /** @var OAuth $c */
-        $c = Client::factory(
-            Client::ADAPTER_OAUTH,
-            [
-                'entrypoint' => $entryPoint,
-                'client_id' => self::getConfig('appId'),
-                'client_secret' => self::getConfig('appSecret'),
-                'refresh_token' => $refreshToken
-            ]
-        );
-        $tokens = $c->refreshTokens();
-        $expirationDate = date('Y-m-d H:i:s', time() + $tokens['expires_in']);
-
-        try {
-            $shopModel = new \Application\Model\Shop();
-            $shopModel->updateTokens($tokens['refresh_token'], $tokens['access_token'], $expirationDate, $shopId);
-        } catch (\PDOException $ex) {
-            throw new \Exception('Database error', 0, $ex);
-        }
-
-        return [
-            'refresh_token' => $tokens['refresh_token'],
-            'access_token' => $tokens['access_token']
-        ];
-    }
+//    public function refreshToken($shopId, $entryPoint, $refreshToken)
+//    {
+//        /** @var OAuth $c */
+//        $c = Client::factory(
+//            Client::ADAPTER_OAUTH,
+//            [
+//                'entrypoint' => $entryPoint,
+//                'client_id' => self::getConfig('appId'),
+//                'client_secret' => self::getConfig('appSecret'),
+//                'refresh_token' => $refreshToken
+//            ]
+//        );
+//        $tokens = $c->refreshTokens();
+//        $expirationDate = date('Y-m-d H:i:s', time() + $tokens['expires_in']);
+//
+//        try {
+//            $shopModel = new \Application\Model\Shop();
+//            $shopModel->updateTokens($tokens['refresh_token'], $tokens['access_token'], $expirationDate, $shopId);
+//        } catch (\PDOException $ex) {
+//            throw new \Exception('Database error', 0, $ex);
+//        }
+//
+//        return [
+//            'refresh_token' => $tokens['refresh_token'],
+//            'access_token' => $tokens['access_token']
+//        ];
+//    }
 
     /**
      * checks variables and hash
