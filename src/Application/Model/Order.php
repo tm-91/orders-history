@@ -41,45 +41,46 @@ class Order
         $stm->bindValue(':orderId', $orderId, \PDO::PARAM_INT);
 
         if ($stm->execute()){
-            // $outcome = [];
-            // while($row = $stm->fetch()) {
-            //     $historyEntry = new \Application\Model\Entity\OrderChange($row['shop_id'], $row['order_id'], $row['date']);
-            //     if (isset($row['added'])){
-            //         $historyEntry->setAddedData(json_decode($row['added'], true));
-            //     }
-            //     if (isset($row['edited'])){
-            //         $historyEntry->setEditedData(json_decode($row['edited'], true));
-            //     }
-            //     if (isset($row['removed'])){
-            //         $historyEntry->setRemovedData(json_decode($row['removed'], true));
-            //     }
-            //     $outcome[] = $historyEntry;
-            // }
+             $outcome = [];
+             while($row = $stm->fetch()) {
+                 $historyEntry = new \Application\Model\Entity\OrderChange($row['shop_id'], $row['order_id'], $row['date']);
+                 if (isset($row['added'])){
+                     $historyEntry->setAddedData(json_decode($row['added'], true));
+                 }
+                 if (isset($row['edited'])){
+                     $historyEntry->setEditedData(json_decode($row['edited'], true));
+                 }
+                 if (isset($row['removed'])){
+                     $historyEntry->setRemovedData(json_decode($row['removed'], true));
+                 }
+                 $outcome[] = $historyEntry;
+             }
 
-            $rows = $stm->fetchAll();
+//            $rows = $stm->fetchAll();
 
-            if ($rows) {
-                if (is_array($rows)) {
-                    \Application\App::log(print_r($rows));
-                } else {
-                    \Application\App::log($rows);
-                }
-            } else {
-                \Application\App::log('model order getHistory; outcome is empty!', 'error');
-            }
+//            if ($rows) {
+//                if (is_array($rows)) {
+//                    \Application\App::log(print_r($rows));
+//                } else {
+//                    \Application\App::log($rows);
+//                }
+//            } else {
+//                \Application\App::log('model order getHistory; outcome is empty!', 'error');
+//            }
 
-            $outcome = [];
-            foreach ($rows as $row){
-                if (isset($row['added'])){
-                    $row['added'] = json_decode($row['added'], true);
-                }
-                if (isset($row['edited'])){
-                    $row['edited'] = json_decode($row['edited'], true);
-                }
-                if (isset($row['removed'])){
-                    $row['removed'] = json_decode($row['removed'], true);
-                }
-            }
+//            $outcome = [];
+//            foreach ($rows as $row){
+//                if (isset($row['added'])){
+//                    $row['added'] = json_decode($row['added'], true);
+//                }
+//                if (isset($row['edited'])){
+//                    $row['edited'] = json_decode($row['edited'], true);
+//                }
+//                if (isset($row['removed'])){
+//                    $row['removed'] = json_decode($row['removed'], true);
+//                }
+//            }
+
             return $outcome;
         } else {
             \Webhooks\App::log('getHistory error', 'error');

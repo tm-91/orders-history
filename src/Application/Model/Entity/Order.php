@@ -28,31 +28,25 @@ class Order
         return $this->_shopId;
     }
 
+    /**
+     * @return array|bool
+     */
     public function getCurrentState() {
         return $this->_orderModel->getCurrentState($this->getShopId(), $this->getId());
     }
 
+    /**
+     * @param array $data
+     */
     public function pushCurrentState(array $data) {
         $this->_orderModel->pushCurrentState($this->getShopId(), $this->getId(), $data);
     }
 
+    /**
+     * @return array|bool array of \Application\Model\Entity\OrderChange objects
+     */
     public function getHistory(){
-		$entries = $this->_orderModel->getHistory($this->getShopId(), $this->getId());
-        $outcome = [];
-        foreach($entries as $history) {
-            $historyEntry = new \Application\Model\Entity\OrderChange($this->getShopId(), $this->getId(), $history['date']);
-            if (isset($history['added'])){
-                $historyEntry->setAddedData($history['added']);
-            }
-            if (isset($history['edited'])){
-                $historyEntry->setEditedData($history['edited']);
-            }
-            if (isset($history['removed'])){
-                $historyEntry->setRemovedData($history['removed']);
-            }
-            $outcome[] = $historyEntry;
-        }
-        return $outcome;
+		return $this->_orderModel->getHistory($this->getShopId(), $this->getId());
 	}
 
 	public function pushHistory(\Application\Model\Entity\OrderChange $historyEntry){
