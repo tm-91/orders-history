@@ -9,7 +9,7 @@ class Index extends ControllerAbstract
     {
         $orderId = $this->app->getParam('id');
         $shopId = $this->app->shopData['id'];
-        $order = new \Application\Model\Order($shopId, $orderId);
+        $order = new \Application\Model\Entity\Order($shopId, $orderId);
         $history = $order->getHistory();
         $view = $this->app->getView(['historyEntries' => $history, 'test' => 'dupa']);
         $view->render();
