@@ -18,7 +18,7 @@ class App extends \Core\AbstractApp
     * @var headers
     *
     */
-    public $headers = array();
+    public $_headers = array();
     
     /**
      * @var array params from headers
@@ -28,13 +28,14 @@ class App extends \Core\AbstractApp
      */
     public $params = array();
 
-    /**
-     * @var current shop id
-     * 
-     * OK
-     * 
-     */
-    public $shopId = '';
+//    /**
+//     * @var current shop id
+//     *
+//     * OK
+//     *
+//     */
+//    public $shopId = '';
+    protected $_shop;
 
     const MODULE_NAME = 'Webhooks';
 
@@ -52,28 +53,29 @@ class App extends \Core\AbstractApp
         parent::bootstrap();
 
         self::log('bootstrap start');
-        $this->headers = $this->getWebhookHeaders();
+        $this->_headers = $this->getWebhookHeaders();
         $this->setParams([
-            'id'        => $this->headers['X-Webhook-Id'],
-            'name'      => $this->headers['X-Webhook-Name'],
-            'shop'      => $this->headers['X-Shop-Domain'],
-            'license'   => $this->headers['X-Shop-License'],
-            'sha1'      => $this->headers['X-Webhook-Sha1']
+            'id'        => $this->_headers['X-Webhook-Id'],
+            'name'      => $this->_headers['X-Webhook-Name'],
+            'shop'      => $this->_headers['X-Shop-Domain'],
+            'license'   => $this->_headers['X-Shop-License'],
+            'sha1'      => $this->_headers['X-Webhook-Sha1']
         ]);
         // checks request
         $this->validateWebhook();
 
         $this->setWebhookData($this->fetchRequestData());
 
-        $this->_modelShop = new \Core\Model\Shop();
+//        $this->_modelShop = new \Core\Model\Shop();
         // detect if shop is already installed
-        $shopId = $this->_modelShop->getShopId($this->getParam('license'));
-        if (!$shopId) {
-            file_put_contents('./logs/webhooks.log', date("Y-m-d H:i:s"). ' License incorrect or application is not installed in shop.', FILE_APPEND);
-            die();
-        }
+//        $shopId = $this->_modelShop->getShopId($this->getParam('license'));
+//        if (!$shopId) {
+//            file_put_contents('./logs/webhooks.log', date("Y-m-d H:i:s"). ' License incorrect or application is not installed in shop.', FILE_APPEND);
+//            die();
+//        }
         
-        $this->shopId = $shopId;
+//        $this->shopId = $shopId;
+        $this->_shop = new \Core\Model\Entity\Shop($this->getParam('license'));
     }
 
     public function run(array $pathArray = null){

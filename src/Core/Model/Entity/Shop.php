@@ -6,7 +6,7 @@
  * Time: 22:02
  */
 
-namespace Application\Model\Entity;
+namespace Core\Model\Entity;
 
 use DreamCommerce\ShopAppstoreLib\Client;
 use DreamCommerce\ShopAppstoreLib\Client\OAuth;
@@ -25,7 +25,7 @@ class Shop
 
     public function __construct($license){
         $this->_license = $license;
-        $this->_model = new \Application\Model\Shop();
+        $this->_model = new \Core\Model\Shop();
         if ($shopData = $this->_model->getInstalledShopData($this->_license)) {
             $this->_shopData = $shopData;
         } else {
