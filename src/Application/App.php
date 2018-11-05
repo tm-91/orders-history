@@ -11,11 +11,11 @@ class App extends \Core\AbstractApp
     /**
      * @var null|\DreamCommerce\ShopAppstoreLib\Client
      */
-    protected $client = null;
+    protected $_client = null;
     /**
      * @var string default locale
      */
-    protected $locale = 'pl_PL';
+    protected $_locale = 'pl_PL';
 
 //    /**
 //     * @var array current shop metadata
@@ -27,14 +27,14 @@ class App extends \Core\AbstractApp
     public $_shop;
 
 
-    public $moduleName = 'Application';
+//    public $moduleName = 'Application';
 
-    public $urlArray = null;
+//    public $urlArray = null;
 
     /**
      * @var array url parameters storage
      */
-    protected $params = array();
+    protected $_params = array();
 
     protected $_defaultController = 'Index';
     protected $_defaultAction = 'index';
@@ -59,10 +59,10 @@ class App extends \Core\AbstractApp
 //        $this->config = $config;
     }
 
-    public function setUrlArray(array $url)
-    {
-        $this->urlArray = $url;
-    }
+//    public function setUrlArray(array $url)
+//    {
+//        $this->urlArray = $url;
+//    }
 
     /**
      * main application bootstrap
@@ -72,37 +72,23 @@ class App extends \Core\AbstractApp
     {
         parent::bootstrap();
 
-        $this->params = $_GET;
+        $this->_params = $_GET;
 
         // check request hash and variables
         $this->validateRequest();
 
-        $this->locale = basename($this->getParam('translations'));
+        $this->_locale = basename($this->getParam('translations'));
 
         // detect if shop is already installed
-//        $shopModel = new Model\Shop();
-//        $shopData = $shopModel->getInstalledShopData($this->getParam('shop'));
         $this->_shop = new Model\Entity\Shop($this->getParam('shop'));
-//        if (!$shopData) {
-//            throw new \Exception('An application is not installed in this shop');
-//        }
-
-//        $this->shopData = $shopData;
 
         // refresh token
         if (strtotime($this->_shop->getData('expires')) - time() < 86400) {
-//            $this->refreshToken(
-//                $shopData['id'],
-//                $shopData['url'],
-//                $shopData['refresh_token']
-//            );
             $this->_shop->refreshToken(self::getConfig('appId'), self::getConfig('appSecret'));
         }
 
-
         // instantiate SDK client
-//        $this->client = $this->instantiateClient($shopData);
-        $this->client = $this->_shop->instantiateSDKClient(self::getConfig('appId'), self::getConfig('appSecret'));
+        $this->_client = $this->_shop->instantiateSDKClient(self::getConfig('appId'), self::getConfig('appSecret'));
     }
 
     public function run(array $data = null)
@@ -114,10 +100,10 @@ class App extends \Core\AbstractApp
     public function getParam($param = null)
     {
         if (is_null($param)) {
-            return $this->params;
+            return $this->_params;
         }
-        if (isset($this->params[$param])) {
-            return $this->params[$param];
+        if (isset($this->_params[$param])) {
+            return $this->_params[$param];
         } else {
             throw new \Exception('Parameter "' . $param . '" is not set');
         }
@@ -148,11 +134,11 @@ class App extends \Core\AbstractApp
      */
     public function getClient()
     {
-        if ($this->client === null) {
+        if ($this->_client === null) {
             throw new \Exception('Client is NOT instantiated');
         }
 
-        return $this->client;
+        return $this->_client;
     }
 
     /**
@@ -160,7 +146,7 @@ class App extends \Core\AbstractApp
      */
     public function getLocale()
     {
-        return $this->locale;
+        return $this->_locale;
     }
 
     /*
@@ -228,16 +214,6 @@ class App extends \Core\AbstractApp
         }
     }
 
-    /**
-     * shows more friendly exception message
-     * @param \Exception $ex
-     */
-    public function handleException(\Exception $ex)
-    {
-        $message = $ex->getMessage();
-        require __DIR__ . '/../view/exception.php';
-    }
-
     public static function escapeHtml($message)
     {
         return htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
@@ -251,15 +227,6 @@ class App extends \Core\AbstractApp
         $query = http_build_query($params);
         return $url . '?' . $query;
     }
-
-    public function testRender($controller, $action){
-        $a = __DIR__ . DIRECTORY_SEPARATOR .
-            self::VIEW_NAMESPACE . DIRECTORY_SEPARATOR .
-            $controller . DIRECTORY_SEPARATOR .
-            $action . '.php';
-        var_dump($a);
-    }
-
 
     public function getView(array $params = array()){
         $var["_locale"] = $this->getLocale();
