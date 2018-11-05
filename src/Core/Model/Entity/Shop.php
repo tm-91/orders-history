@@ -44,6 +44,10 @@ class Shop
         return false;
     }
 
+    public function getId(){
+        return $this->getData('id');
+    }
+
 //    public function refreshToken($appId, $appSecretKey){
 //        $this->_model->refreshToken(
 //            $this->getData('id'),

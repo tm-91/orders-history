@@ -12,7 +12,7 @@ class App extends \Core\AbstractApp
      * OK
      * 
      */
-    public $_data = false;
+    public $_webhookData = false;
 
     /**
     * @var headers
@@ -34,7 +34,7 @@ class App extends \Core\AbstractApp
 //     * OK
 //     *
 //     */
-//    public $shopId = '';
+   // public $shopId = '';
     protected $_shop;
 
     const MODULE_NAME = 'Webhooks';
@@ -64,7 +64,8 @@ class App extends \Core\AbstractApp
         // checks request
         $this->validateWebhook();
 
-        $this->setWebhookData($this->fetchRequestData());
+//        $this->setWebhookData($this->fetchRequestData());
+        $this->_webhookData = $this->fetchRequestData();
 
 //        $this->_modelShop = new \Core\Model\Shop();
         // detect if shop is already installed
@@ -76,6 +77,11 @@ class App extends \Core\AbstractApp
         
 //        $this->shopId = $shopId;
         $this->_shop = new \Core\Model\Entity\Shop($this->getParam('license'));
+        // $this->_shopId = $this->_shop->getData('id');
+    }
+
+    public function shop(){
+        return $this->_shop;
     }
 
     public function run(array $pathArray = null){
@@ -108,16 +114,16 @@ class App extends \Core\AbstractApp
     }
 
     public function getWebhookData(){
-        return $this->_data;
+        return $this->_webhookData;
     }
 
-    protected function setWebhookData(array $data) {
-        $this->_data = $data;
-    }
+//    protected function setWebhookData(array $data) {
+//        $this->_webhookData = $data;
+//    }
 
-    public function fetchRequestData($decodeJSON = true){
+    public function fetchRequestData($getRaw = false){
         $data = file_get_contents("php://input");
-        if ($decodeJSON) {
+        if (!$getRaw) {
             $data = json_decode($data, true);
         }
         return $data;
@@ -133,7 +139,7 @@ class App extends \Core\AbstractApp
     public function validateWebhook()
     {
         $secretKey = hash_hmac('sha512', $this->getParam('license') . ":" . self::getConfig('webhookSecretKey'), self::getConfig('appstoreSecret'));
-        $sha1 = sha1($this->getParam('id') . ':' . $secretKey . ':' . $this->fetchRequestData(false));
+        $sha1 = sha1($this->getParam('id') . ':' . $secretKey . ':' . $this->fetchRequestData(true));
 
         if ($sha1 != $this->getParam('sha1')) {
             self::log('Webhook validation failed. bad checksum: ' . $sha1);

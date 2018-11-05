@@ -8,7 +8,7 @@ class Index extends ControllerAbstract
     public function indexAction()
     {
         $orderId = $this->app->getParam('id');
-        $shopId = $this->app->shopData['id'];
+        $shopId = $this->app->shop()->getId();
         $order = new \Application\Model\Entity\Order($shopId, $orderId);
         $history = $order->getHistory();
         $view = $this->app->getView(['historyEntries' => $history, 'test' => 'dupa']);

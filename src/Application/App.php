@@ -24,7 +24,7 @@ class App extends \Core\AbstractApp
     /**
      * @var \Application\Model\Entity\Shop
      */
-    public $_shop;
+    protected $_shop;
 
 
 //    public $moduleName = 'Application';
@@ -95,6 +95,10 @@ class App extends \Core\AbstractApp
     {
         $this->bootstrap();
         $this->dispatch($data['query']);
+    }
+
+    public function shop(){
+        return $this->_shop;
     }
 
     public function getParam($param = null)
