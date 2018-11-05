@@ -11,43 +11,16 @@ namespace Core\Model;
 
 class Shop
 {
-    public function getShopData($license) {
-        $stmt = \DbHandler::getDb()->prepare('SELECT * FROM shops WHERE shop=:license');
-        if (!$stmt->execute([':license' => $license])) {
-            return false;
-        }
-        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    protected $_id;
+    protected $_license;
+
+    public function __construct($license){
+        $this->_license = $license;
     }
 
-    /**
-     * get installed shop info
-     * @param $license
-     * @return array|bool
-     */
-    public function getShopId($license)
-    {
-        $stmt = \DbHandler::getDb()->prepare('SELECT id FROM shops WHERE shop=:license');
-        if (!$stmt->execute([':license' => $license])) {
-            return false;
-        }
-        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+    public function getData(){}
+    public function updateTokens(){}
+    public function getId(){}
+    public function getLicense(){}
 
-        return $result['id'];
-
-    }
-
-    /**
-     * get installed shop info
-     * @param $license
-     * @return array|bool
-     */
-    public function getAppVersion($license)
-    {
-        $stmt = \DbHandler::getDb()->prepare('SELECT version FROM shops WHERE shop=:license');
-        if (!$stmt->execute([':license' => $license])) {
-            return false;
-        }
-        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $result['version'];
-    }
 }
