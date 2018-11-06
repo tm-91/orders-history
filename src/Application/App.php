@@ -211,7 +211,7 @@ class App extends \Core\AbstractApp
         $p = join("&", $parameters);
 
 
-        $hash = hash_hmac('sha512', $p, $this->getConfig('appstoreSecret'));
+        $hash = hash_hmac('sha512', $p, self::getConfig('appstoreSecret'));
 
         if ($hash != $this->getParam('hash')) {
             throw new \Exception('Invalid request');
