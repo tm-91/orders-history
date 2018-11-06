@@ -234,10 +234,10 @@ class App extends \Core\AbstractApp
     }
 
     public function getView(array $params = array()){
-        $translations = require 'translations.php'[$this->getLocale()];
+        $translations = require 'translations.php';
+        $params['translations'] = $translations[$this->getLocale()];
         // $var["_locale"] = $this->getLocale();
         $namespace = '\\' . self::MODULE_NAME . '\\' . self::VIEW_NAMESPACE . '\\' . 'View';
-        // return new $namespace($this->_calledController . DIRECTORY_SEPARATOR . ucfirst($this->_calledAction), $params);
         return new $namespace($this->_calledController . DIRECTORY_SEPARATOR . ucfirst($this->_calledAction), $params);
     }
 }

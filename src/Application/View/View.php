@@ -46,17 +46,28 @@ class View
         require __DIR__ . DIRECTORY_SEPARATOR . $this->_viewDirectory . '.php';
 	}
 
-	public static function echoRec($array) {
+	public static function echoRec($array, array $translations = null) {
+	    echo '<div style="">';
 		foreach ($array as $key => $val) {
 			if (is_array($val)) {
-				echo '--- ' . $key . ' ---</br>';
-				static::echoRec($val);
-				echo '------';
+			    if ($translations && isset($translations[$key])){
+			        $key = $translations[$key];
+                }
+                if (!is_numeric($key)){
+                	echo '<div><h3>' . $key . '</h3></div>';
+            	}
+//				echo '--- ' . $key . ' ---</br>';
+				static::echoRec($val, $translations);
+				// echo '------';
 			} else {
-				echo $key . ' : ' . $val;
+                if ($translations && isset($translations[$key])){
+                    $key = $translations[$key];
+                }
+				echo '<div>' . $key . ' : ' . $val . '</div>';
 				// echo $val;
 			}
-			echo '</br>';
+			// echo '</br>';
 		}
+		echo '</div>';
 	}
 }

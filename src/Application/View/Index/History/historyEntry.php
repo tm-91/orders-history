@@ -21,7 +21,7 @@
 //			echo '</br/>';
 //		}
 		// print_r($addedData); 
-		 \Application\View\View::echoRec($addedData);
+		 \Application\View\View::echoRec($addedData, $translations);
 		?>
 	</div>
 </div>
@@ -44,7 +44,7 @@
 //			echo '</br/>';
 //		}
 		// // print_r($addedData); 
-		 \Application\View\View::echoRec($editedData);
+		 \Application\View\View::echoRec($editedData, $translations);
 		?>
 	</div>
 </div>
@@ -67,7 +67,7 @@
 //			echo '</br/>';
 //		}
 		// print_r($addedData); 
-		 \Application\View\View::echoRec($removedData);
+		 \Application\View\View::echoRec($removedData, $translations);
 		?>
 	</div>
 </div>

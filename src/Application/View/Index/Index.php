@@ -58,7 +58,13 @@
                 <div class="history-container">
                     <?php
                     foreach ($historyEntries as $entry){
-                        $view = new \Application\View\View('Index/History/historyEntry', ['entry' => $entry]);
+                        $view = new \Application\View\View(
+                                'Index/History/historyEntry',
+                            [
+                                'entry' => $entry,
+                                'translations' => $translations
+                            ]
+                        );
                         $view->render();
 //                        require 'History/historyEntry.php';
 //                        echo "</br></br>";
