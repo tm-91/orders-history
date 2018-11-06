@@ -25,7 +25,7 @@ class Shop
 
             $update = false;
             try {
-                $shopId = $this->getShopId($arguments['shop']);
+                $shopId = $this->_getShopId($arguments['shop']);
                 $update = true;
             } catch (\Exception $exc) {
                 // ignore
@@ -86,12 +86,93 @@ class Shop
 
     public function billingInstall($arguments){
         try {
-            $shopId = $this->getShopId($arguments['shop']);
+            $shopId = $this->_getShopId($arguments['shop']);
 
             // store payment event
-            $stmt = $this->db()->prepare('INSERT INTO billings (shop_id) VALUES (?)');
+            $stmt = \DbHandler::getDb()->prepare('INSERT INTO billings (shop_id) VALUES (?)');
             $stmt->execute(array(
                 $shopId
+            ));
+        } catch (\PDOException $ex) {
+            throw new \Exception('Database error', 0, $ex);
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+
+    /**
+     * helper function for ID finding
+     * @param $shop
+     * @throws \Exception
+     * @return string
+     */
+    protected function _getShopId($shop)
+    {
+        $conn = \DbHandler::getDb();
+        $stmt = $conn->prepare('SELECT id FROM shops WHERE shop=?');
+
+        $stmt->execute(array(
+            $shop
+        ));
+        $id = $stmt->fetchColumn(0);
+        if (!$id) {
+            throw new \Exception('Shop not found: ' . $shop);
+        }
+
+        return $id;
+    }
+
+    public function upgrade($arguments)
+    {
+        try {
+            $shopId = $this->_getShopId($arguments['shop']);
+
+            // shop upgrade
+            $shopStmt = \DbHandler::getDb()->prepare('UPDATE shops set version = ? WHERE id = '.(int)$shopId);
+            $shopStmt->execute(array($arguments['application_version']));
+        } catch (\PDOException $ex) {
+            throw new \Exception('Database error', 0, $ex);
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+
+    public function uninstall($arguments)
+    {
+        try {
+            $shopId = $this->_getShopId($arguments['shop']);
+
+            $conn = \DbHandler::getDb();
+
+            // remove shop's references
+            $conn->query('UPDATE shops SET installed = 0 WHERE id=' . (int)$shopId);
+            $tokens = $conn->prepare('UPDATE access_tokens SET access_token = ?, refresh_token = ? WHERE shop_id = ?');
+            $tokens->execute(array(
+                null, null, $shopId
+            ));
+        } catch (\PDOException $ex) {
+            throw new \Exception('Database error', 0, $ex);
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+
+    public function billingSubscription($arguments)
+    {
+        try {
+            $shopId = $this->_getShopId($arguments['shop']);
+
+            // make sure we convert timestamp correctly
+            $expiresAt = date('Y-m-d H:i:s', strtotime($arguments['subscription_end_time']));
+
+            if (!$expiresAt) {
+                throw new \Exception('Malformed timestamp');
+            }
+
+            // save subscription event
+            $stmt = \DbHandler::getDb()->prepare('INSERT INTO subscriptions (shop_id, expires_at) VALUES (?,?)');
+            $stmt->execute(array(
+                $shopId, $expiresAt
             ));
         } catch (\PDOException $ex) {
             throw new \Exception('Database error', 0, $ex);

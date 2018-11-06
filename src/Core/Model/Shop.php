@@ -25,4 +25,6 @@ class Shop
         $stmt->execute([$refreshToken, $accessToken, $expirationDate, $shopId]);
     }
 
+
+
 }
