@@ -79,8 +79,9 @@ class App extends \Core\AbstractApp
 
         $this->_locale = basename($this->getParam('translations'));
 
-        // detect if shop is already installed
         $this->_shop = new \Core\Model\Entity\Shop($this->getParam('shop'));
+        // detect if shop is already installed
+        $this->_shop->getData();
 
         // refresh token
         if (strtotime($this->_shop->getData('expires')) - time() < 86400) {

@@ -26,73 +26,8 @@ class Index
      */
     public function installAction($arguments)
     {
-file_put_contents(DREAMCOMMERCE_LOG_FILE, date('Y-m-d H:i:s') . ' [BillingSystem]: installAction' . PHP_EOL, FILE_APPEND);
-        /** @var \PDO $db */
-        $db = $this->db();
-file_put_contents(DREAMCOMMERCE_LOG_FILE, date('Y-m-d H:i:s') . ' [BillingSystem]: installAction - db = this->db()' . PHP_EOL, FILE_APPEND);
-        try {
-file_put_contents(DREAMCOMMERCE_LOG_FILE, date('Y-m-d H:i:s') . ' [BillingSystem]: installAction - try' . PHP_EOL, FILE_APPEND);            
-            $db->beginTransaction();
-
-            $update = false;
-            try {
-                $shopId = $this->getShopId($arguments['shop']);
-                $update = true;
-            } catch (\Exception $exc) {
-                // ignore
-            }
-
-            if ($update) {
-                $shopStmtUpdate = $db->prepare('UPDATE shops SET shop_url = ?, version = ?, installed = 1 WHERE id = ?');
-                $shopStmtUpdate->execute(array(
-                    $arguments['shop_url'], $arguments['application_version'], $shopId
-                ));
-            } else {
-                // shop installation
-                $shopStmtInsert = $db->prepare('INSERT INTO shops (shop, shop_url, version, installed) values (?,?,?,1)');
-                $shopStmtInsert->execute(array(
-                    $arguments['shop'], $arguments['shop_url'], $arguments['application_version']
-                ));
-
-                $shopId = $db->lastInsertId();
-            }
-
-            // get OAuth tokens
-            try {
-                /** @var OAuth $c */
-                $c = $arguments['client'];
-                $c->setAuthCode($arguments['auth_code']);
-                $tokens = $c->authenticate();
-            } catch (ClientException $ex) {
-                throw new \Exception('Client error', 0, $ex);
-            }
-
-            // store tokens in db
-            $expirationDate = date('Y-m-d H:i:s', time() + $tokens['expires_in']);
-            if ($update) {
-                $tokensStmtUpdate = $db->prepare('UPDATE access_tokens SET expires_at = ?, access_token = ?, refresh_token = ? WHERE shop_id = ?');
-                $tokensStmtUpdate->execute(array(
-                    $expirationDate, $tokens['access_token'], $tokens['refresh_token'], $shopId
-                ));
-            } else {
-                $tokensStmtInsert = $db->prepare('INSERT INTO access_tokens (shop_id, expires_at, access_token, refresh_token) VALUES (?,?,?,?)');
-                $tokensStmtInsert->execute(array(
-                    $shopId, $expirationDate, $tokens['access_token'], $tokens['refresh_token']
-                ));
-            }
-
-            $db->commit();
-        } catch (\PDOException $ex) {
-            if ($db->inTransaction()) {
-                $db->rollBack();
-            }
-            throw new \Exception('Database error', 0, $ex);
-        } catch (\Exception $ex) {
-            if ($db->inTransaction()) {
-                $db->rollBack();
-            }
-            throw $ex;
-        }
+        $model = new \BillingSystem\Model\Shop();
+        $model->install($arguments);
     }
 
     /**

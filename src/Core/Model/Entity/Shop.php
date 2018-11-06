@@ -21,19 +21,26 @@ class Shop
     // s.shop_url as url,
     // a.expires_at as expires,
     // a.shop_id as id
-    protected $_shopData = [];
+    protected $_shopData = false;
 
     public function __construct($license){
         $this->_license = $license;
         $this->_model = new \Core\Model\Shop();
-        if ($shopData = $this->_model->getInstalledShopData($this->_license)) {
-            $this->_shopData = $shopData;
-        } else {
-            throw new \Exception('Application is not installed in shop: ' . $license);
-        }
+
+    }
+
+    public function getLicense(){
+        return $this->_license;
     }
 
     public function getData($name = null) {
+        if ($this->_shopData === false) {
+            if ($shopData = $this->_model->getInstalledShopData($this->getLicense())) {
+                $this->_shopData = $shopData;
+            } else {
+                throw new \Exception('Application is not installed in shop: ' . $this->getLicense());
+            }
+        }
         if ($name === null) {
             return $this->_shopData;
         }

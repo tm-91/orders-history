@@ -61,8 +61,9 @@ class App extends \Core\AbstractApp
 
         $this->_webhookData = $this->fetchRequestData();
 
-        // detect if shop is already installed
         $this->_shop = new \Core\Model\Entity\Shop($this->getParam('license'));
+        // detect if shop is already installed
+        $this->_shop->getData();
     }
 
     public function shop(){
