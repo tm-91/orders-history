@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: AsusPC
- * Date: 2018-10-07
- * Time: 22:18
- */
 
 namespace Core\Controller;
 

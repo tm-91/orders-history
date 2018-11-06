@@ -1,9 +1,6 @@
 <?php
 namespace Application;
 
-use DreamCommerce\ShopAppstoreLib\Client;
-use DreamCommerce\ShopAppstoreLib\Client\OAuth;
-
 
 class App extends \Core\AbstractApp
 {
@@ -17,19 +14,10 @@ class App extends \Core\AbstractApp
      */
     protected $_locale = 'pl_PL';
 
-//    /**
-//     * @var array current shop metadata
-//     */
-//    public $shopData = array();
     /**
-     * @var \Application\Model\Entity\Shop
+     * @var \Core\Model\Entity\Shop
      */
     protected $_shop;
-
-
-//    public $moduleName = 'Application';
-
-//    public $urlArray = null;
 
     /**
      * @var array url parameters storage
@@ -55,14 +43,7 @@ class App extends \Core\AbstractApp
             die();
         }
         setlocale(LC_ALL, basename($_GET['locale']));
-
-//        $this->config = $config;
     }
-
-//    public function setUrlArray(array $url)
-//    {
-//        $this->urlArray = $url;
-//    }
 
     /**
      * main application bootstrap
@@ -114,24 +95,6 @@ class App extends \Core\AbstractApp
         }
     }
 
-//    /**
-//     * instantiate client resource
-//     * @param $shopData
-//     * @return \DreamCommerce\ShopAppstoreLib\Client
-//     */
-//    public function instantiateClient($shopData)
-//    {
-//        /** @var OAuth $c */
-//        $c = Client::factory(Client::ADAPTER_OAUTH, array(
-//                'entrypoint' => $shopData['url'],
-//                'client_id' => self::getConfig('appId'),
-//                'client_secret' => self::getConfig('appSecret')
-//            )
-//        );
-//        $c->setAccessToken($shopData['access_token']);
-//        return $c;
-//    }
-
     /**
      * get client resource
      * @throws \Exception
@@ -153,40 +116,6 @@ class App extends \Core\AbstractApp
     {
         return $this->_locale;
     }
-
-    /*
-     * refresh OAuth token
-     * @param array $shopData
-     * @return mixed
-     * @throws \Exception
-     */
-//    public function refreshToken($shopId, $entryPoint, $refreshToken)
-//    {
-//        /** @var OAuth $c */
-//        $c = Client::factory(
-//            Client::ADAPTER_OAUTH,
-//            [
-//                'entrypoint' => $entryPoint,
-//                'client_id' => self::getConfig('appId'),
-//                'client_secret' => self::getConfig('appSecret'),
-//                'refresh_token' => $refreshToken
-//            ]
-//        );
-//        $tokens = $c->refreshTokens();
-//        $expirationDate = date('Y-m-d H:i:s', time() + $tokens['expires_in']);
-//
-//        try {
-//            $shopModel = new \Application\Model\Shop();
-//            $shopModel->updateTokens($tokens['refresh_token'], $tokens['access_token'], $expirationDate, $shopId);
-//        } catch (\PDOException $ex) {
-//            throw new \Exception('Database error', 0, $ex);
-//        }
-//
-//        return [
-//            'refresh_token' => $tokens['refresh_token'],
-//            'access_token' => $tokens['access_token']
-//        ];
-//    }
 
     /**
      * checks variables and hash
@@ -236,7 +165,6 @@ class App extends \Core\AbstractApp
     public function getView(array $params = array()){
         $translations = require 'translations.php';
         $params['translations'] = $translations[$this->getLocale()];
-        // $var["_locale"] = $this->getLocale();
         $namespace = '\\' . self::MODULE_NAME . '\\' . self::VIEW_NAMESPACE . '\\' . 'View';
         return new $namespace($this->_calledController . DIRECTORY_SEPARATOR . ucfirst($this->_calledAction), $params);
     }

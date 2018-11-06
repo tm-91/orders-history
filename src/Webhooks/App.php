@@ -166,24 +166,6 @@ class App extends \Core\AbstractApp
         return $shopData;
     }
 
-    /*
-     * get installed shop info
-     * @param $license
-     * @return array|bool
-     */
-    /*public function getAppVersion($license)
-    {
-        $db = $this->db();
-        $stmt = $db->prepare('select version from shops where shop=:license');
-        if (!$stmt->execute(array(':license' => $license))) {
-            return false;
-        }
-        $result = $stmt->fetch();
-
-        return $result['version'];
-
-    }*/
-
     public static function escapeHtml($message){
         return htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
     }

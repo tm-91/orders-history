@@ -5,13 +5,8 @@ class View
 {
 	protected $_params = null;
     protected $_viewDirectory = false;
-	// protected $_controller = false;
-	// protected $_action = false;
-	// protected $_file = false;
 
 	public function __construct($viewDirectory, array $params = array()){
-		// $this->_controller = $controller;
-		// $this->_action = $action;
 		$this->_params = $params;
         $this->_viewDirectory = $viewDirectory;
 	}
@@ -41,8 +36,7 @@ class View
 
 	public function render(){
         \Application\App::log('render ' . $this->_viewDirectory);
-        extract($this->_params);
-        // require __DIR__ . DIRECTORY_SEPARATOR . $this->_controller . DIRECTORY_SEPARATOR . $this->_action . '.php' ;
+        extract($this->_params);'.php' ;
         require __DIR__ . DIRECTORY_SEPARATOR . $this->_viewDirectory . '.php';
 	}
 

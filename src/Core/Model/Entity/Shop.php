@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: AsusPC
- * Date: 2018-11-05
- * Time: 22:02
- */
+
 
 namespace Core\Model\Entity;
 
@@ -16,11 +11,6 @@ class Shop
     protected $_model;
     protected $_license;
 
-    // a.access_token,
-    // a.refresh_token,
-    // s.shop_url as url,
-    // a.expires_at as expires,
-    // a.shop_id as id
     protected $_shopData = false;
 
     public function __construct($license){

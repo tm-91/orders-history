@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: AsusPC
- * Date: 2018-11-06
- * Time: 01:21
- */
 
 namespace BillingSystem\Model;
 

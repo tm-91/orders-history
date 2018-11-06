@@ -55,35 +55,8 @@ class Order
                  }
                  $outcome[] = $historyEntry;
              }
-
-//            $rows = $stm->fetchAll();
-
-//            if ($rows) {
-//                if (is_array($rows)) {
-//                    \Application\App::log(print_r($rows));
-//                } else {
-//                    \Application\App::log($rows);
-//                }
-//            } else {
-//                \Application\App::log('model order getHistory; outcome is empty!', 'error');
-//            }
-
-//            $outcome = [];
-//            foreach ($rows as $row){
-//                if (isset($row['added'])){
-//                    $row['added'] = json_decode($row['added'], true);
-//                }
-//                if (isset($row['edited'])){
-//                    $row['edited'] = json_decode($row['edited'], true);
-//                }
-//                if (isset($row['removed'])){
-//                    $row['removed'] = json_decode($row['removed'], true);
-//                }
-//            }
-
             return $outcome;
         } else {
-            \Webhooks\App::log('getHistory error', 'error');
             return false;
         }
     }
