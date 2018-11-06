@@ -3,14 +3,10 @@ namespace Core;
 
 abstract class AbstractApp implements AppInterface
 {
-    /*
+    /**
      * @var array configuration storage
      */
     protected static $config = false;
-    public $dbHandler = false;
-    /**
-     * @var string module configuration file path
-     */
 
     const DEFAULT_CONTROLLER = 'Index';
     const DEFAULT_ACTION = 'index';

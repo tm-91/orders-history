@@ -1,6 +1,7 @@
 <?php
 
-class Bootstraper{
+class Bootstraper
+{
     const DEFAULT_MODULE = 'Application';
     const MODULE_CLASS_NAME = 'App';
     protected static $_defaultConfigFile = __DIR__. '/Config.php';
@@ -8,7 +9,6 @@ class Bootstraper{
 
     public static function processRequestUrl(){
         $path = trim($_GET['q'], '/');
-
         $path = str_replace('\\', '', $path);
         $pathElements = $path == '' ? array() : explode('/', $path);
 
@@ -55,7 +55,6 @@ class Bootstraper{
     }
 
     public static function loadConfig($configFile = false){
-        //todo sprawdzenie czy plik istnieje
         if ($configFile === false) {
             $config = require_once self::$_defaultConfigFile;
         } else {
