@@ -29,7 +29,7 @@ class Shop
         if ($shopData = $this->_model->getInstalledShopData($this->_license)) {
             $this->_shopData = $shopData;
         } else {
-            throw new \Exception('An application is not installed in this shop');
+            throw new \Exception('Application is not installed in shop: ' . $license);
         }
     }
 
@@ -47,16 +47,6 @@ class Shop
     public function getId(){
         return $this->getData('id');
     }
-
-//    public function refreshToken($appId, $appSecretKey){
-//        $this->_model->refreshToken(
-//            $this->getData('id'),
-//            $this->getData('url'),
-//            $this->getData('refresh_token'),
-//            $appId,
-//            $appSecretKey
-//        );
-//    }
 
     public function refreshToken($appId, $appSecret)
     {

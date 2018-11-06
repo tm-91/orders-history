@@ -28,13 +28,9 @@ class App extends \Core\AbstractApp
      */
     public $params = array();
 
-//    /**
-//     * @var current shop id
-//     *
-//     * OK
-//     *
-//     */
-   // public $shopId = '';
+    /**
+     * @var \Core\Model\Entity\Shop
+     */
     protected $_shop;
 
     const MODULE_NAME = 'Webhooks';
@@ -52,7 +48,6 @@ class App extends \Core\AbstractApp
     {
         parent::bootstrap();
 
-        self::log('bootstrap start');
         $this->_headers = $this->getWebhookHeaders();
         $this->setParams([
             'id'        => $this->_headers['X-Webhook-Id'],
@@ -64,20 +59,10 @@ class App extends \Core\AbstractApp
         // checks request
         $this->validateWebhook();
 
-//        $this->setWebhookData($this->fetchRequestData());
         $this->_webhookData = $this->fetchRequestData();
 
-//        $this->_modelShop = new \Core\Model\Shop();
         // detect if shop is already installed
-//        $shopId = $this->_modelShop->getShopId($this->getParam('license'));
-//        if (!$shopId) {
-//            file_put_contents('./logs/webhooks.log', date("Y-m-d H:i:s"). ' License incorrect or application is not installed in shop.', FILE_APPEND);
-//            die();
-//        }
-        
-//        $this->shopId = $shopId;
         $this->_shop = new \Core\Model\Entity\Shop($this->getParam('license'));
-        // $this->_shopId = $this->_shop->getData('id');
     }
 
     public function shop(){
@@ -116,10 +101,6 @@ class App extends \Core\AbstractApp
     public function getWebhookData(){
         return $this->_webhookData;
     }
-
-//    protected function setWebhookData(array $data) {
-//        $this->_webhookData = $data;
-//    }
 
     public function fetchRequestData($getRaw = false){
         $data = file_get_contents("php://input");
@@ -169,11 +150,6 @@ class App extends \Core\AbstractApp
         return $headers;
     }
 
-    // todo
-    /*protected function getWebhookSecretKey(){
-
-    }*/
-    
     /**
      * @return bool
      */

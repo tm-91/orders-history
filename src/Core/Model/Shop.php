@@ -30,55 +30,55 @@ class Shop
     }
 
     /////////////////////////////////////////////////////////////////////////////
-    /**
-     * refresh OAuth token
-     * @param array $shopData
-     * @return mixed
-     * @throws \Exception
-     */
-    public function refreshToken($shopId, $entryPoint, $refreshToken, $appId, $appSecret)
-    {
-        /** @var OAuth $c */
-        $c = Client::factory(
-            Client::ADAPTER_OAUTH,
-            [
-                'entrypoint' => $entryPoint,
-                'client_id' => self::getConfig('appId'),
-                'client_secret' => self::getConfig('appSecret'),
-                'refresh_token' => $refreshToken
-            ]
-        );
-        $tokens = $c->refreshTokens();
-        $expirationDate = date('Y-m-d H:i:s', time() + $tokens['expires_in']);
-
-        try {
-            $shopModel = new \Application\Model\Shop();
-            $shopModel->updateTokens($tokens['refresh_token'], $tokens['access_token'], $expirationDate, $shopId);
-        } catch (\PDOException $ex) {
-            throw new \Exception('Database error', 0, $ex);
-        }
-
-        return [
-            'refresh_token' => $tokens['refresh_token'],
-            'access_token' => $tokens['access_token']
-        ];
-    }
-
-    /**
-     * instantiate client resource
-     * @param $shopData
-     * @return \DreamCommerce\ShopAppstoreLib\Client
-     */
-    public function instantiateClient($shopData)
-    {
-        /** @var OAuth $c */
-        $c = Client::factory(Client::ADAPTER_OAUTH, array(
-                'entrypoint' => $shopData['url'],
-                'client_id' => self::getConfig('appId'),
-                'client_secret' => self::getConfig('appSecret')
-            )
-        );
-        $c->setAccessToken($shopData['access_token']);
-        return $c;
-    }
+//    /**
+//     * refresh OAuth token
+//     * @param array $shopData
+//     * @return mixed
+//     * @throws \Exception
+//     */
+//    public function refreshToken($shopId, $entryPoint, $refreshToken, $appId, $appSecret)
+//    {
+//        /** @var OAuth $c */
+//        $c = Client::factory(
+//            Client::ADAPTER_OAUTH,
+//            [
+//                'entrypoint' => $entryPoint,
+//                'client_id' => self::getConfig('appId'),
+//                'client_secret' => self::getConfig('appSecret'),
+//                'refresh_token' => $refreshToken
+//            ]
+//        );
+//        $tokens = $c->refreshTokens();
+//        $expirationDate = date('Y-m-d H:i:s', time() + $tokens['expires_in']);
+//
+//        try {
+//            $shopModel = new \Application\Model\Shop();
+//            $shopModel->updateTokens($tokens['refresh_token'], $tokens['access_token'], $expirationDate, $shopId);
+//        } catch (\PDOException $ex) {
+//            throw new \Exception('Database error', 0, $ex);
+//        }
+//
+//        return [
+//            'refresh_token' => $tokens['refresh_token'],
+//            'access_token' => $tokens['access_token']
+//        ];
+//    }
+//
+//    /**
+//     * instantiate client resource
+//     * @param $shopData
+//     * @return \DreamCommerce\ShopAppstoreLib\Client
+//     */
+//    public function instantiateClient($shopData)
+//    {
+//        /** @var OAuth $c */
+//        $c = Client::factory(Client::ADAPTER_OAUTH, array(
+//                'entrypoint' => $shopData['url'],
+//                'client_id' => self::getConfig('appId'),
+//                'client_secret' => self::getConfig('appSecret')
+//            )
+//        );
+//        $c->setAccessToken($shopData['access_token']);
+//        return $c;
+//    }
 }
