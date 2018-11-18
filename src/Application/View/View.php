@@ -6,9 +6,16 @@ class View
 	protected $_params = null;
     protected $_viewDirectory = false;
 
-	public function __construct($viewDirectory, array $params = array()){
+    /**
+     * @var bool|\Psr\Log\LoggerInterface
+     */
+    protected $_logger = false;
+
+	public function __construct($viewDirectory, array $params = array(), \Logger $logger){
 		$this->_params = $params;
         $this->_viewDirectory = $viewDirectory;
+        $logger->addScope('View');
+        $this->_logger = $logger;
 	}
 
 	public function setParam($name, $value){
@@ -35,8 +42,8 @@ class View
 	}
 
 	public function render(){
-        \Application\App::log('render ' . $this->_viewDirectory);
-        extract($this->_params);'.php' ;
+        $this->_logger->debug('rendering ' . $this->_viewDirectory);
+        extract($this->_params);
         require __DIR__ . DIRECTORY_SEPARATOR . $this->_viewDirectory . '.php';
 	}
 

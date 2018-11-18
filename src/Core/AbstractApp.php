@@ -18,8 +18,16 @@ abstract class AbstractApp implements AppInterface
     protected $_calledController = false;
     protected $_calledAction = false;
 
+    /**
+     * @var \Logger
+     */
+    protected $_logger = false;
+
     public function bootstrap(){
         static::$config = static::getConfig();
+        $logger = new \Logger(static::$config);
+        $logger->setScope([static::MODULE_NAME]);
+        $this->_logger = $logger;
     }
 
     public abstract function run(array $params = null);
@@ -28,13 +36,34 @@ abstract class AbstractApp implements AppInterface
         return \Bootstraper::getConfig($config);
     }
 
-    public static function log($message, $type = \Logger::TYPE_DEBUG){
-        if (is_array($message)){
-            \Logger::log('[module: ' . static::MODULE_NAME . '] ' . print_r($message, true), $type);
-        } else {
-            \Logger::log('[module: ' . static::MODULE_NAME . '] ' . $message, $type);
+//    public static function log($message, $type = \Logger::TYPE_DEBUG){
+//        if (is_array($message)){
+//            \Logger::log('[module: ' . static::MODULE_NAME . '] ' . print_r($message, true), $type);
+//        } else {
+//            \Logger::log('[module: ' . static::MODULE_NAME . '] ' . $message, $type);
+//        }
+//    }
+
+    /**
+     * @return \Logger
+     */
+    public function logger() {
+        if ($this->_logger === false) {
+            $logger = new \Logger(static::$config);
+            $logger->setScope([static::MODULE_NAME]);
+            $this->_logger = $logger;
         }
+        return $this->_logger;
     }
+
+//    /**
+//     * @return \Logger
+//     */
+//    public function logger(){
+//        $logger = new \Logger();
+//        $logger->setScope([static::MODULE_NAME]);
+//        return $logger;
+//    }
 
     /**
      * dispatcher
@@ -90,4 +119,7 @@ abstract class AbstractApp implements AppInterface
         $this->_calledController = $controllerName;
         $this->_calledAction = $actionName;
     }
+
+    // todo
+    // errorHandler use set_exception_handler()
 }
