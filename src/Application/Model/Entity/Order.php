@@ -32,7 +32,7 @@ class Order
      * @return array|bool
      */
     public function getCurrentState() {
-        return $this->_orderModel->getCurrentState($this->getShopId(), $this->getId());
+        return $this->_orderModel->getCurrentData($this->getShopId(), $this->getId());
     }
 
     /**
