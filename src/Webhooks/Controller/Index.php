@@ -1,26 +1,45 @@
 <?php
 namespace Webhooks\Controller;
 
+use Application\Model\Order;
+
 class Index extends \Core\Controller\Controller
 {
+//    public function indexAction(){
+//        $data = $this->_app->getWebhookData();
+//        $order = \Application\Model\Entity\Order::getInstance($this->_app->shop()->getId(), $data['order_id']);
+////        $order = new \Application\Model\Entity\Order($this->_app->shop()->getId(), $data['order_id']);
+//        $changes = $order->geDiff($data);
+//        $order->pushHistory($changes);
+//        $order->pushCurrentState($data);
+//    }
     public function indexAction(){
         $data = $this->_app->getWebhookData();
-        $order = new \Application\Model\Entity\Order($this->_app->shop()->getId(), $data['order_id']);
+        $order = Order::getInstance($this->_app->shop()->getId(), $data['order_id']);
         $changes = $order->geDiff($data);
-        $order->pushHistory($changes);
-        $order->pushCurrentState($data);
+        $order->insertHistory($changes);
+        $order->updateCurrentData($data);
     }
 
+//    public function neworderAction(){
+//    	$data = $this->_app->getWebhookData();
+////    	$order = new \Application\Model\Entity\Order($this->_app->shop()->getId(), $data['order_id']);
+//    	$order = \Application\Model\Entity\Order::createNewOrder($this->_app->shop()->getId(), $data['order_id'], $data);
+////    	$order->pushCurrentState($data);
+//    }
+
     public function neworderAction(){
-    	$data = $this->_app->getWebhookData();
-    	$order = new \Application\Model\Entity\Order($this->_app->shop()->getId(), $data['order_id']);
-    	$order->pushCurrentState($data);
+        $data = $this->_app->getWebhookData();
+        Order::createNewOrder(
+            $this->_app->shop()->getId(),
+            $data['order_id'],
+            $data
+        );
     }
 
     public function removeorderAction(){
         $data = $this->_app->getWebhookData();
-        $order = new \Application\Model\Entity\Order($this->_app->shop()->getId(), $data['order_id']);
-        $order->removeAllHistory();
-        $order->removeCurrentState();
+        $order = Order::getInstance($this->_app->shop()->getId(), $data['order_id']);
+        $order->removeOrder();
     }
 }

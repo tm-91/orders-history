@@ -6,7 +6,7 @@
  * Time: 16:38
  */
 
-namespace Application\Model;
+namespace Application\Model\Tables;
 
 
 class OrderHistory
@@ -22,7 +22,7 @@ class OrderHistory
         if ($stm->execute()){
             $outcome = [];
             while($row = $stm->fetch()) {
-                $historyEntry = new \Application\Model\Entity\OrderChange($row['shop_id'], $row['order_id'], $row['date']);
+                $historyEntry = new \Application\Model\Entity\OrderHistoryEntry($row['shop_id'], $row['order_id'], $row['date']);
                 if (isset($row['added'])){
                     $historyEntry->setAddedData(json_decode($row['added'], true));
                 }
@@ -48,7 +48,7 @@ class OrderHistory
      * @param array|null $removed
      * @return bool|int
      */
-    public function insertHistory($orderId, $date, array $added = null, array $edited = null, array $removed = null){
+    public function insertHistory($orderId, \DateTime $date, array $added = null, array $edited = null, array $removed = null){
         $columns = [];
         $values = [];
         if ($added) {
@@ -71,7 +71,8 @@ class OrderHistory
             'INSERT INTO orders_history (order_id, date, ' . implode(', ', $columns).
             ') VALUES (:order_id, :date, ' . implode(', ', array_keys($values)) . ');');
         $stm->bindValue(':order_id', $orderId, \PDO::PARAM_INT);
-        $stm->bindValue(':date', $date);
+//        $stm->bindValue(':date', $date->format('Y-m-d H:i:s'));
+        $stm->bindValue(':date', $date->format('Y-m-d H:i:s'), \PDO::PARAM_STR);
         foreach ($values as $key => $val) {
             $stm->bindValue($key, $val, \PDO::PARAM_STR);
         }

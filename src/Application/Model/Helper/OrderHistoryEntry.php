@@ -1,18 +1,16 @@
 <?php
-namespace Application\Model\Entity;
+namespace Application\Model\Helper;
 
-class OrderChange
+class OrderHistoryEntry
 {
 	protected $_addedData = [];
 	protected $_editedData = [];
 	protected $_removedData = [];
 	protected $_date;
-	protected $_shopId;
 	protected $_orderId;
 	protected $_id;
 
-    public function __construct($shopId, $orderId, $date){
-        $this->_shopId = $shopId;
+    public function __construct($orderId, $date){
         $this->_orderId = $orderId;
         $this->_date = $date;
     }
@@ -92,12 +90,5 @@ class OrderChange
      */
     public function getOrderId(){
         return $this->_orderId;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getShopId(){
-        return $this->_shopId;
     }
 }

@@ -7,7 +7,7 @@ class Index extends \Core\Controller\Controller
     {
         $orderId = $this->_app->getParam('id');
         $shopId = $this->_app->shop()->getId();
-        $order = new \Application\Model\Entity\Order($shopId, $orderId);
+        $order = \Application\Model\Order::getInstance($shopId, $orderId);
         $history = $order->getHistory();
         $view = $this->_app->getView(['historyEntries' => $history]);
         $view->render();

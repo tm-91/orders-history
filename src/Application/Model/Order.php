@@ -1,82 +1,165 @@
 <?php
-
 namespace Application\Model;
-
 
 class Order
 {
-    // todo
-    public function getOrderId($shopId, $shopOrderId){
-        $stm = \DbHandler::getDb()->prepare('SELECT `id` FROM `orders` WHERE `shop_id`=:shopId AND `shop_order_id`=:shopOrderId;');
-        $stm->bindValue(':shopId', $shopId, \PDO::PARAM_INT);
-        $stm->bindValue(':shopOrderId', $shopOrderId, \PDO::PARAM_INT);
-        if ($stm->execute()) {
-            return $stm->fetch(\PDO::FETCH_NUM)[0];
+//	protected $_shopId;
+	protected $_id;
+
+    /**
+     * @var \Application\Model\Tables\Order
+     */
+	protected $_tableOrders = false;
+
+    /**
+     * @var \Application\Model\Tables\OrderHistory
+     */
+	protected $_tableOrdersHistory = false;
+
+
+	protected function __construct($id, $ordersTable, $ordersHistoryTable){
+		$this->_id = $id;
+		$this->_tableOrders = $ordersTable;
+		$this->_tableOrdersHistory = $ordersHistoryTable;
+	}
+
+	public static function createNewOrder($shopId, $orderId, array $currentState){
+        $orderModel = new \Application\Model\Tables\Order();
+        if ($orderModel->insertOrder($shopId, $orderId, $currentState)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static function getInstance($shopId, $orderId) {
+        $orderModel = new \Application\Model\Tables\Order();
+        if ($id = $orderModel->getOrderId($shopId, $orderId)){
+            return new self(
+                $id,
+                $orderModel,
+                new \Application\Model\Tables\OrderHistory()
+            );
         }
         return false;
     }
 
     /**
-     * @param $id
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->_id;
+    }
+
+//    /**
+//     * @return mixed
+//     */
+//    public function getShopId() {
+//        return $this->_shopId;
+//    }
+
+    /**
      * @return array|bool
      */
-    public function getCurrentData($id){
-        $stm = \DbHandler::getDb()->prepare('SELECT `order_current_data` FROM `orders` WHERE `id`=:id;');
-        $stm->bindValue(':id', $id, \PDO::PARAM_INT);
-        if ($stm->execute()) {
-            $data = $stm->fetch();
-            return json_decode($data[0], true);
-        }
-        return false;
+    public function getCurrentData() {
+        return $this->_tableOrders->getCurrentData($this->getId());
     }
 
     /**
-     * @param $shopId
-     * @param $shopOrderId
-     * @param array $orderCurrentData
-     * @return bool
-     * @internal param array $data
+     * @param array $data
      */
-    public function insertOrder($shopId, $shopOrderId, array $orderCurrentData){;
-        $stm = \DbHandler::getDb()->prepare('INSERT INTO `orders` (`shop_id`, `shop_order_id`, `order_current_data`) VALUES (:shopId, :orderId, :orderData) ON DUPLICATE KEY UPDATE order_current_data=VALUES(order_current_data)');
-        $stm->bindValue(':shopId', $shopId, \PDO::PARAM_INT);
-        $stm->bindValue(':shopOrderId', $shopOrderId, \PDO::PARAM_INT);
-        $stm->bindValue(':orderCurrentData', json_encode($orderCurrentData), \PDO::PARAM_STR);
-        return $stm->execute();
+    public function updateCurrentData(array $data) {
+        $this->_tableOrders->updateCurrentData($this->getId(), $data);
     }
 
+    /**
+     * @return array|bool array of \Application\Model\Entity\OrderChange objects
+     */
+    public function getHistory(){
+		return $this->_tableOrdersHistory->getHistory($this->getId());
+	}
 
-    public function updateCurrentData($id, array $orderCurrentData){
-        $stm = \DbHandler::getDb()->prepare('UPDATE TABLE `orders` SET `order_current_data`=:orderCurrentData WHERE `id`=:id');
-        $stm->bindValue(':id', $id, \PDO::PARAM_INT);
-        $stm->bindValue(':orderCurrentData', json_encode($orderCurrentData), \PDO::PARAM_STR);
-        return $stm->execute();
+	public function insertHistory(\Application\Model\Helper\OrderHistoryEntry $historyEntry){
+        $this->_tableOrdersHistory->insertHistory(
+            $this->getId(),
+            $historyEntry->getDate(),
+            $historyEntry->getAddedData(),
+            $historyEntry->getEditedData(),
+            $historyEntry->getRemovedData()
+        );
     }
 
-    public function removeOrder($id){
-        $stm = \DbHandler::getDb()->prepare('DELETE FROM `orders` WHERE `id`=:id;');
-        $stm->bindValue(':id', $id, \PDO::PARAM_INT);
-        return $stm->execute();
+	/**
+     * @param array $data
+     * @param null $time
+     * @return \Application\Model\Helper\OrderHistoryEntry
+     */
+    public function geDiff(array $data, $time = null)
+    {
+        $findEditedAndRemoved = function ($compareAgainst, $data) use (&$findEditedAndRemoved) {
+            $outcome = [
+                'e'=>[],
+                'r'=>[]
+            ];
+            foreach ($compareAgainst as $key1 => $val1) {
+                if (array_key_exists($key1, $data)) {
+                    if (is_array($val1)) {
+                        $out = $findEditedAndRemoved($val1, $data[$key1]);
+                        if ($out['e']){
+                            $outcome['e'][$key1] = $out['e'];
+                        }
+                        if ($out['r']){
+                            $outcome['r'][$key1] = $out['r'];
+                        }
+                    } else {
+                        if ($val1 !== $data[$key1]) {
+                            $outcome['e'][$key1] = $data[$key1];
+                        }
+                    }
+                } else {
+                    $outcome['r'][$key1] = $val1;
+                }
+            }
+            return $outcome;
+        };
+
+        $findAdded = function ($compareAgainst, $data) use (&$findAdded) {
+            $outcome = [];
+            foreach ($data as $key2 => $val2) {
+                if (!key_exists($key2, $compareAgainst)) {
+                    $outcome[$key2] = $val2;
+                } elseif (is_array($val2)) {
+                    if ($out = $findAdded($compareAgainst[$key2], $val2)) {
+                        $outcome[$key2] = $out;
+                    }
+                }
+            }
+            return $outcome;
+        };
+
+        $currentOrder = $this->getCurrentData();
+        if ($time === null) {
+            $time = new \DateTime();
+            $time->setTimestamp($_SERVER['REQUEST_TIME']);
+        }
+        $changes = new \Application\Model\Helper\OrderHistoryEntry($this->getId(), $time);
+        if ($currentOrder == false) {
+            $changes->setAddedData($data);
+        } else {
+            $extractedData = $findEditedAndRemoved($currentOrder, $data);
+            $changes->setEditedData($extractedData['e']);
+            $changes->setRemovedData($extractedData['r']);
+            $changes->setAddedData($findAdded($currentOrder, $data));
+        }
+        return $changes;
     }
 
+    public function removeOrder(){
+        $this->_tableOrders->removeOrder($this->getId());
+    }
 
-//    const ID = 'id';
-//    const SHOP_ID = 'shop_id';
-//    const SHOP_ORDER_ID =  'shop_order_id';
-
-//    const ORDER_CURRENT_DATA = 'order_current_data';
-//    public function updateCurrentData($id, array $values){
-//        $set = [];
-////        $valuesToSet = [];
-//        foreach ($values as $column => $val){
-//            $set[] = $column . '=:' . $column;
-//        }
-//        $stm = \DbHandler::getDb()->prepare('UPDATE TABLE `orders` SET (`shop_id`, `shop_order_id`, `order_current_data`) WHERE `id`=:id');
-//        $stm->bindValue(':id', $id, \PDO::PARAM_INT);
-//
-//        $stm->bindValue(':orderId', $orderId, \PDO::PARAM_INT);
-//        $stm->bindValue(':orderData', json_encode($data), \PDO::PARAM_STR);
-//        return $stm->execute();
-//    }
+    public function clearHistory(){
+        $this->_tableOrdersHistory->removeOrderHistory($this->getId());
+    }
 
 }
