@@ -37,10 +37,8 @@ class Order
      * @return bool
      * @internal param array $data
      */
-    // public function pushCurrentState($shopId, $orderId, array $data){
-    public function insertOrder($shopId, $shopOrderId, array $orderCurrentData){
-        $stm = \DbHandler::getDb()->prepare('INSERT INTO `orders` (`shop_id`, `shop_order_id`, `order_current_data`) VALUES (:shopId, :shopOrderId, :orderCurrentData);');
-//        $stm = \DbHandler::getDb()->prepare('INSERT INTO `orders` (`shop_id`, `shop_order_id`, `order_current_data`) VALUES (:shopId, :orderId, :orderData) ON DUPLICATE KEY UPDATE order_current_data=VALUES(order_current_data)');
+    public function insertOrder($shopId, $shopOrderId, array $orderCurrentData){;
+        $stm = \DbHandler::getDb()->prepare('INSERT INTO `orders` (`shop_id`, `shop_order_id`, `order_current_data`) VALUES (:shopId, :orderId, :orderData) ON DUPLICATE KEY UPDATE order_current_data=VALUES(order_current_data)');
         $stm->bindValue(':shopId', $shopId, \PDO::PARAM_INT);
         $stm->bindValue(':shopOrderId', $shopOrderId, \PDO::PARAM_INT);
         $stm->bindValue(':orderCurrentData', json_encode($orderCurrentData), \PDO::PARAM_STR);
@@ -55,11 +53,11 @@ class Order
         return $stm->execute();
     }
 
-    // todo
-    /*public function removeOrder($id){
-        $stm  =\DbHandler::getDb()->prepare('')
-    }*/
-
+    public function removeOrder($id){
+        $stm = \DbHandler::getDb()->prepare('DELETE FROM `orders` WHERE `id`=:id;');
+        $stm->bindValue(':id', $id, \PDO::PARAM_INT);
+        return $stm->execute();
+    }
 
 
 //    const ID = 'id';
@@ -81,82 +79,4 @@ class Order
 //        return $stm->execute();
 //    }
 
-    /**
-     * @return array|bool of objects type \Application\Model\Entity\OrderChange
-     */
-    public function getHistory($shopId, $orderId){
-        $stm = \DbHandler::getDb()->prepare('SELECT date, added, edited, removed FROM orders_history WHERE shop_id=:shopId AND order_id=:orderId ORDER BY date');
-        $stm->bindValue(':shopId', $shopId, \PDO::PARAM_INT);
-        $stm->bindValue(':orderId', $orderId, \PDO::PARAM_INT);
-
-        if ($stm->execute()){
-             $outcome = [];
-             while($row = $stm->fetch()) {
-                 $historyEntry = new \Application\Model\Entity\OrderChange($row['shop_id'], $row['order_id'], $row['date']);
-                 if (isset($row['added'])){
-                     $historyEntry->setAddedData(json_decode($row['added'], true));
-                 }
-                 if (isset($row['edited'])){
-                     $historyEntry->setEditedData(json_decode($row['edited'], true));
-                 }
-                 if (isset($row['removed'])){
-                     $historyEntry->setRemovedData(json_decode($row['removed'], true));
-                 }
-                 $outcome[] = $historyEntry;
-             }
-            return $outcome;
-        } else {
-            return false;
-        }
-    }
-
-
-    public function pushHistory($shopId, $orderId, $date, array $added = null, array $edited = null, array $removed = null){
-        $columns = [];
-        $values = [];
-        if ($added) {
-            $values[':added'] = json_encode($added);
-            $columns[] = 'added';
-        }
-        if ($edited) {
-            $values[':edited'] = json_encode($edited);
-            $columns[] = 'edited';
-        }
-        if ($removed) {
-            $values[':removed'] = json_encode($removed);
-            $columns[] = 'removed';
-        }
-        if (empty($values)) {
-            return -1;
-        }
-
-        $stm = \DbHandler::getDb()->prepare(
-            'INSERT INTO orders_history (shop_id, order_id, date, ' . implode(', ', $columns).
-            ') VALUES (:shop_id, :order_id, :date, ' . implode(', ', array_keys($values)) . ');');
-        $stm->bindValue(':shop_id', $shopId, \PDO::PARAM_INT);
-        $stm->bindValue(':order_id', $orderId, \PDO::PARAM_INT);
-        $stm->bindValue(':date', $date);
-        foreach ($values as $key => $val) {
-            $stm->bindValue($key, $val, \PDO::PARAM_STR);
-        }
-        try {    
-            $stm->execute();    
-        } catch (\PDOException $e) {
-            \Webhooks\App::log("Error: " . $e->getMessage() . "\n");
-        }
-    }
-    
-    public function removeCurrentState($shopId, $orderId){
-        $stm = \DbHandler::getDb()->prepare('DELETE FROM `orders_current_state` WHERE `shop_id`=:shopId AND `order_id`=:orderId;');
-        $stm->bindValue(':shopId', $shopId, \PDO::PARAM_INT);
-        $stm->bindValue(':orderId', $orderId, \PDO::PARAM_INT);
-        return $stm->execute();
-    }
-
-    public function removeHistory($shopId, $orderId){
-        $stm = \DbHandler::getDb()->prepare('DELETE FROM `orders_history` WHERE `shop_id`=:shopId AND `order_id`=:orderId;');
-        $stm->bindValue(':shopId', $shopId, \PDO::PARAM_INT);
-        $stm->bindValue(':orderId', $orderId, \PDO::PARAM_INT);
-        return $stm->execute();
-    }
 }
