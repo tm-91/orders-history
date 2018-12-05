@@ -22,7 +22,7 @@ class OrderHistory
         if ($stm->execute()){
             $outcome = [];
             while($row = $stm->fetch()) {
-                $historyEntry = new \Application\Model\Entity\OrderHistoryEntry($row['shop_id'], $row['order_id'], $row['date']);
+                $historyEntry = new \Application\Model\Helper\OrderHistoryEntry($row['shop_id'], $row['order_id'], $row['date']);
                 if (isset($row['added'])){
                     $historyEntry->setAddedData(json_decode($row['added'], true));
                 }
