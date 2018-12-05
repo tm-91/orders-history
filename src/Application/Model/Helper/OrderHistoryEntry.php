@@ -6,11 +6,16 @@ class OrderHistoryEntry
 	protected $_addedData = [];
 	protected $_editedData = [];
 	protected $_removedData = [];
+
+    /**
+    * @var \DateTime
+    */
 	protected $_date;
+
 	protected $_orderId;
 	protected $_id;
 
-    public function __construct($orderId, $date){
+    public function __construct($orderId, \DateTime $date){
         $this->_orderId = $orderId;
         $this->_date = $date;
     }
@@ -81,8 +86,8 @@ class OrderHistoryEntry
     /**
      * @return mixed
      */
-    public function getDate(){
-        return $this->_date;
+    public function getDate($format = 'd.m.Y H:i:s'){
+        return $this->_date->format($format);
     }
 
     /**
