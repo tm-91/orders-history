@@ -1,6 +1,7 @@
 <?php
 namespace Application;
 
+use \Core\Model\Shop;
 
 class App extends \Core\AbstractApp
 {
@@ -15,9 +16,9 @@ class App extends \Core\AbstractApp
     protected $_locale = 'pl_PL';
 
     /**
-     * @var \Core\Model\Entity\Shop
+     * @var Shop
      */
-    protected $_shop;
+    protected $_shop = false;
 
     /**
      * @var array url parameters storage
@@ -60,12 +61,14 @@ class App extends \Core\AbstractApp
 
         $this->_locale = basename($this->getParam('translations'));
 
-        $this->_shop = new \Core\Model\Entity\Shop($this->getParam('shop'));
+        $this->_shop = Shop::getInstance($this->getParam('shop'));
         // detect if shop is already installed
-        $this->_shop->getData();
+        if (!$this->_shop) {
+            throw new \Exception('shop is not installed! license: ' . $this->getParam('shop'));
+        }
 
         // refresh token
-        if (strtotime($this->_shop->getData('expires')) - time() < 86400) {
+        if (strtotime($this->_shop->getToken()->expiresAt() - time() < 86400)) {
             $this->_shop->refreshToken(self::getConfig('appId'), self::getConfig('appSecret'));
         }
 

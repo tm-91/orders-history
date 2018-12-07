@@ -1,5 +1,7 @@
 <?php
 namespace Webhooks;
+
+use \Core\Model\Shop;
 /**
  * Class App
  */
@@ -29,16 +31,11 @@ class App extends \Core\AbstractApp
     public $params = array();
 
     /**
-     * @var \Core\Model\Entity\Shop
+     * @var Shop
      */
     protected $_shop;
 
     const MODULE_NAME = 'Webhooks';
-
-    /**
-     * @var \Core\Model\Shop
-     */
-    protected $_modelShop;
 
     /**
      * main application bootstrap
@@ -61,11 +58,16 @@ class App extends \Core\AbstractApp
 
         $this->_webhookData = $this->fetchRequestData();
 
-        $this->_shop = new \Core\Model\Entity\Shop($this->getParam('license'));
+        $this->_shop = Shop::getInstance($this->getParam('license'));
         // detect if shop is already installed
-        $this->_shop->getData();
+        if (!$this->_shop) {
+            throw new \Exception('shop is not installed! license: ' . $this->getParam('license'));
+        }
     }
 
+    /**
+     * @return Shop
+     */
     public function shop(){
         return $this->_shop;
     }

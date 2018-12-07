@@ -11,6 +11,13 @@ namespace Core\Model\Tables;
 
 class Shops extends AbstractTable
 {
+    const COLUMN_SHOP_URL = 'shop_url';
+    const COLUMN_VERSION = 'version';
+    const COLUMN_INSTALLED = 'installed';
+    const COLUMN_TYPE = [
+        self::COLUMN_VERSION => \PDO::PARAM_INT,
+        self::COLUMN_INSTALLED => \PDO::PARAM_INT
+    ];
 //    public function getInstalledShopData($shop)
 //    {
 //        $stmt = \DbHandler::getDb()->prepare('select a.access_token, a.refresh_token, s.shop_url as url, a.expires_at as expires, a.shop_id as id from access_tokens a join shops s on a.shop_id=s.id where s.shop=?');
@@ -53,13 +60,7 @@ class Shops extends AbstractTable
         return $stmt->execute();
     }*/
 
-    const COLUMN_SHOP_URL = 'shop_url';
-    const COLUMN_VERSION = 'version';
-    const COLUMN_INSTALLED = 'installed';
-    const COLUMN_TYPE = [
-        self::COLUMN_VERSION => \PDO::PARAM_INT,
-        self::COLUMN_INSTALLED => \PDO::PARAM_INT
-    ];
+
 
     public function updateShop($shopId, array $fields){
         $stmt = \DbHandler::getDb()->prepare('UPDATE `shops` SET ' . $this->_getParamsString($fields) . ' WHERE `id` = :id');

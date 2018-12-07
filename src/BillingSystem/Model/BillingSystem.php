@@ -8,11 +8,73 @@ use DreamCommerce\ShopAppstoreLib\Exception\HandlerException;
 use DreamCommerce\ShopAppstoreLib\Handler;
 use DreamCommerce\ShopAppstoreLib\Client\OAuth;
 
+use \Core\Model\Tables\Billings as TableBillings;
+use \Core\Model\Tables\Shops as TableShops;
+use \Core\Model\Tables\AccessTokens as TableAccessTokens;
+use \Core\Model\Tables\Subscriptions as TableSubscriptions;
 
-class Shop
+
+class BillingSystem
 {
+    protected $_license = false;
 
-    public function install($args){
+    /**
+     * @var bool|TableBillings
+     */
+    protected $_billingsTable = false;
+
+    /**
+     * @var bool|TableShops
+     */
+    protected $_shopsTable = false;
+
+    /**
+     * @var bool|TableAccessTokens
+     */
+    protected $_accessTokensTable = false;
+
+    /**
+     * @var bool|TableSubscriptions
+     */
+    protected $_subscriptionsTable = false;
+
+    public function __construct($license) {
+        $this->_license = $license;
+    }
+
+    public static function getInstance(
+        $license,
+        TableShops $tableShops,
+        TableAccessTokens $tableAccessTokens,
+        TableBillings $tableBillings,
+        TableSubscriptions $tableSubscriptions
+    ){
+        $billing = new self($license);
+        $billing->_shopsTable = $tableShops;
+        $billing->_accessTokensTable = $tableAccessTokens;
+        $billing->_subscriptionsTable = $tableSubscriptions;
+        $billing->_billingsTable = $tableBillings;
+        return $billing;
+    }
+    /*public static function getInstance(
+        $license,
+        TableShops $tableShops,
+        TableAccessTokens $tableAccessTokens,
+        TableComplexQueries $tableComplexQueries,
+        TableBillings $tableBillings
+    ){
+        if ($shop = parent::getInstance($license, $tableShops, $tableAccessTokens, $tableComplexQueries)) {
+            $shop->_billingsTable = $tableBillings;
+            return $shop;
+        }
+        return false;
+    }*/
+
+    public function getLicense(){
+        return $this->_license;
+    }
+
+    public function installShop($args){
         $db = \DbHandler::getDb();
         try {
             $tableShops = new \Core\Model\Tables\Shops();
@@ -23,7 +85,7 @@ class Shop
                 /*
                 $shopId = $this->_getShopId($arguments['shop']);
                 */
-                if ($id = $tableShops->getShopId($args['shop'])) {
+                if ($id = $this->_shopsTable->getShopId($args['shop'])) {
                     $shopId = $id;
                 } else {
                     // todo przenieść do osobnej metody
