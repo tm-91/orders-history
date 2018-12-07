@@ -15,7 +15,7 @@ class App extends \Core\AbstractApp
     /**
      * @var null|Handler
      */
-    protected $handler = null;
+    protected $_handler = null;
 
     const MODULE_NAME = 'BillingSystem';
 
@@ -25,7 +25,7 @@ class App extends \Core\AbstractApp
         }
         try {
             // instantiate a handler
-            $handler = $this->handler = new Handler(
+            $handler = $this->_handler = new Handler(
                 $_POST['shop_url'], self::getConfig('appId'), self::getConfig('appSecret'), self::getConfig('appstoreSecret')
             );
             // subscribe to particular events
@@ -49,7 +49,7 @@ class App extends \Core\AbstractApp
     {
 
         try {
-            $this->handler->dispatch($data);
+            $this->_handler->dispatch($data);
         } catch (HandlerException $ex) {
             if ($ex->getCode() == HandlerException::HASH_FAILED) {
                 throw new \Exception('Payload hash verification failed', 0, $ex);

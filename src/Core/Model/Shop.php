@@ -42,16 +42,12 @@ class Shop
         $this->_id = $shopId;
     }
 
-    protected function _bootstrap(){
-
-    }
-
-    public static function createShop($license, $url, $appVersion, TableShops $tableShops) {
+    /*public static function installShop($license, $url, $appVersion, TableShops $tableShops) {
         if ($tableShops->addShop($license, $url, $appVersion)) {
             return true;
         }
         return false;
-    }
+    }*/
 
     /*public static function getInstance(
         $license,

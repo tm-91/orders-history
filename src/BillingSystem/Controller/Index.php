@@ -2,7 +2,7 @@
 namespace BillingSystem\Controller;
 
 
-class Index
+class Index extends AbstractController
 {
 	/**
      * install action
@@ -21,8 +21,7 @@ class Index
      */
     public function installAction($arguments)
     {
-        $model = new \BillingSystem\Model\BillingSystem();
-        $model->installShop($arguments);
+        $this->billing()->installShop($arguments);
     }
 
     /**
@@ -40,8 +39,7 @@ class Index
      */
     public function billingInstallAction($arguments)
     {
-        $model = new \BillingSystem\Model\BillingSystem();
-        $model->billingInstall($arguments);
+        $this->billing()->billingInstall($arguments);
     }
 
 	/**
@@ -60,8 +58,7 @@ class Index
      */
     public function upgradeAction($arguments)
     {
-        $model = new \BillingSystem\Model\BillingSystem();
-        $model->upgrade($arguments);
+        $this->billing()->upgrade($arguments);
     }
 
     /**
@@ -79,8 +76,7 @@ class Index
      */
     public function uninstallAction($arguments)
     {
-        $model = new \BillingSystem\Model\BillingSystem();
-        $model->uninstall($arguments);
+        $this->billing()->uninstall($arguments);
     }
 
     /**
@@ -99,8 +95,7 @@ class Index
      */
     public function billingSubscriptionAction($arguments)
     {
-        $model = new \BillingSystem\Model\BillingSystem();
-        $model->billingSubscription($arguments);
+        $this->billing()->billingSubscription($arguments);
     }
 
 }

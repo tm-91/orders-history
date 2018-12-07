@@ -16,8 +16,6 @@ use \Core\Model\Tables\Subscriptions as TableSubscriptions;
 
 class BillingSystem
 {
-    protected $_license = false;
-
     /**
      * @var bool|TableBillings
      */
@@ -38,86 +36,42 @@ class BillingSystem
      */
     protected $_subscriptionsTable = false;
 
-    public function __construct($license) {
-        $this->_license = $license;
-    }
-
-    public static function getInstance(
-        $license,
+    public function __construct(
         TableShops $tableShops,
         TableAccessTokens $tableAccessTokens,
         TableBillings $tableBillings,
         TableSubscriptions $tableSubscriptions
-    ){
-        $billing = new self($license);
-        $billing->_shopsTable = $tableShops;
-        $billing->_accessTokensTable = $tableAccessTokens;
-        $billing->_subscriptionsTable = $tableSubscriptions;
-        $billing->_billingsTable = $tableBillings;
-        return $billing;
-    }
-    /*public static function getInstance(
-        $license,
-        TableShops $tableShops,
-        TableAccessTokens $tableAccessTokens,
-        TableComplexQueries $tableComplexQueries,
-        TableBillings $tableBillings
-    ){
-        if ($shop = parent::getInstance($license, $tableShops, $tableAccessTokens, $tableComplexQueries)) {
-            $shop->_billingsTable = $tableBillings;
-            return $shop;
-        }
-        return false;
-    }*/
-
-    public function getLicense(){
-        return $this->_license;
+    ) {
+        $this->_shopsTable = $tableShops;
+        $this->_accessTokensTable = $tableAccessTokens;
+        $this->_subscriptionsTable = $tableSubscriptions;
+        $this->_billingsTable = $tableBillings;
     }
 
     public function installShop($args){
         $db = \DbHandler::getDb();
         try {
-            $tableShops = new \Core\Model\Tables\Shops();
+            $tableShops = $this->_shopsTable;
             $db->beginTransaction();
 
             $update = false;
             try {
-                /*
-                $shopId = $this->_getShopId($arguments['shop']);
-                */
-                if ($id = $this->_shopsTable->getShopId($args['shop'])) {
-                    $shopId = $id;
-                } else {
-                    // todo przenieść do osobnej metody
-                    throw new \Exception('shop not found ' . $args['shop']);
-                }
+                $shopId = $this->_getShopId($args['shop']);
                 $update = true;
             } catch (\Exception $exc) {
                 // ignore
             }
 
             if ($update) {
-                /*
-                $shopStmtUpdate = $db->prepare('UPDATE shops SET shop_url = ?, version = ?, installed = 1 WHERE id = ?');
-                $shopStmtUpdate->execute(array(
-                    $arguments['shop_url'], $arguments['application_version'], $shopId
-                ));
-                */
-                $tableShops->updateShop(
+                $this->_shopsTable->updateShop(
                     $shopId,
                     [
                         $tableShops::COLUMN_SHOP_URL => $args['shop_url'],
-                        $tableShops::COLUMN_VERSION => $args['application_version']
+                        $tableShops::COLUMN_VERSION => $args['application_version'],
                     ]
                 );
             } else {
                 // shop installation
-                /*
-                $shopStmtInsert = $db->prepare('INSERT INTO shops (shop, shop_url, version, installed) values (?,?,?,1)');
-                $shopStmtInsert->execute(array(
-                    $arguments['shop'], $arguments['shop_url'], $arguments['application_version']
-                ));
-                */
                 $tableShops->addShop($args['shop'], $args['shop_url'], $args['application_version']);
                 $shopId = $db->lastInsertId();
             }
@@ -133,15 +87,9 @@ class BillingSystem
             }
 
             // store tokens in db
-            $tableAccessTokens = new \Core\Model\Tables\AccessTokens();
+            $tableAccessTokens = $this->_accessTokensTable;
             $expirationDate = date('Y-m-d H:i:s', time() + $tokens['expires_in']);
             if ($update) {
-                /*
-                $tokensStmtUpdate = $db->prepare('UPDATE access_tokens SET expires_at = ?, access_token = ?, refresh_token = ? WHERE shop_id = ?');
-                $tokensStmtUpdate->execute(array(
-                    $expirationDate, $tokens['access_token'], $tokens['refresh_token'], $shopId
-                ));
-                */
                 $tableAccessTokens->updateTokens(
                     $shopId,
                     [
@@ -151,12 +99,6 @@ class BillingSystem
                     ]
                 );
             } else {
-                /*
-                $tokensStmtInsert = $db->prepare('INSERT INTO access_tokens (shop_id, expires_at, access_token, refresh_token) VALUES (?,?,?,?)');
-                $tokensStmtInsert->execute(array(
-                    $shopId, $expirationDate, $tokens['access_token'], $tokens['refresh_token']
-                ));
-                */
                 $tableAccessTokens->addToken($shopId, $expirationDate, $tokens['access_token'], $tokens['refresh_token']);
             }
 
@@ -179,14 +121,7 @@ class BillingSystem
         try {
             $shopId = $this->_getShopId($arguments['shop']);
             // store payment event
-            /*
-            $stmt = \DbHandler::getDb()->prepare('INSERT INTO billings (shop_id) VALUES (?)');
-            $stmt->execute(array(
-                $shopId
-            ));
-            */
-            $tableBillings = new \Core\Model\Tables\Billings();
-            $tableBillings->addBilling($shopId);
+            $this->_billingsTable->addBilling($shopId);
         } catch (\PDOException $ex) {
             throw new \Exception('Database error', 0, $ex);
         } catch (\Exception $ex) {
@@ -194,28 +129,20 @@ class BillingSystem
         }
     }
 
-//    /**
-//     * helper function for ID finding
-//     * @param $shop
-//     * @throws \Exception
-//     * @return string
-//     */
-//    protected function _getShopId($shop)
-//    {
-//        $conn = \DbHandler::getDb();
-//        $stmt = $conn->prepare('SELECT id FROM shops WHERE shop=?');
-//
-//        $stmt->execute(array(
-//            $shop
-//        ));
-//        $id = $stmt->fetchColumn(0);
-//        if (!$id) {
-//            throw new \Exception('Shop not found: ' . $shop);
-//        }
-//
-//        return $id;
-//    }
-    // todo getShopId
+    /**
+     * helper function for ID finding
+     * @param $license
+     * @return string
+     * @throws \Exception
+     */
+    protected function _getShopId($license)
+    {
+        if ($id = $this->_shopsTable->getShopId($license)) {
+            return $id;
+        } else {
+            throw new \Exception('did not found shop with license: ' . $license);
+        }
+    }
 
     public function upgrade($arguments)
     {
@@ -223,11 +150,7 @@ class BillingSystem
             $shopId = $this->_getShopId($arguments['shop']);
 
             // shop upgrade
-            /*
-            $shopStmt = \DbHandler::getDb()->prepare('UPDATE shops set version = ? WHERE id = '.(int)$shopId);
-            $shopStmt->execute(array($arguments['application_version']));
-            */
-            $tableShops = new \Core\Model\Tables\Shops();
+            $tableShops = $this->_shopsTable;
             $tableShops->updateShop($shopId, [$tableShops::COLUMN_VERSION => $arguments['application_version']]);
         } catch (\PDOException $ex) {
             throw new \Exception('Database error', 0, $ex);
@@ -240,20 +163,10 @@ class BillingSystem
     {
         try {
             $shopId = $this->_getShopId($arguments['shop']);
-
-
             // remove shop's references
-            /*
-            $conn = \DbHandler::getDb();
-            $conn->query('UPDATE shops SET installed = 0 WHERE id=' . (int)$shopId);
-            $tokens = $conn->prepare('UPDATE access_tokens SET access_token = ?, refresh_token = ? WHERE shop_id = ?');
-            $tokens->execute(array(
-                null, null, $shopId
-            ));
-            */
-            $tableShops = new \Core\Model\Tables\Shops();
+            $tableShops = $this->_shopsTable;
             $tableShops->updateShop($shopId,[$tableShops::COLUMN_INSTALLED => 0]);
-            $tableTokens = new \Core\Model\Tables\AccessTokens();
+            $tableTokens = $this->_accessTokensTable;
             $tableTokens->updateTokens(
                 $shopId,
                 [
@@ -261,8 +174,6 @@ class BillingSystem
                     $tableTokens::COLUMN_REFRESH_TOKEN => null
                 ]
             );
-
-
         } catch (\PDOException $ex) {
             throw new \Exception('Database error', 0, $ex);
         } catch (\Exception $ex) {
@@ -274,24 +185,13 @@ class BillingSystem
     {
         try {
             $shopId = $this->_getShopId($arguments['shop']);
-
             // make sure we convert timestamp correctly
             $expiresAt = date('Y-m-d H:i:s', strtotime($arguments['subscription_end_time']));
-
             if (!$expiresAt) {
                 throw new \Exception('Malformed timestamp');
             }
-
             // save subscription event
-            /*
-            $stmt = \DbHandler::getDb()->prepare('INSERT INTO subscriptions (shop_id, expires_at) VALUES (?,?)');
-            $stmt->execute(array(
-                $shopId, $expiresAt
-            ));
-            */
-            $tableSubscriptions = new \Core\Model\Tables\Subscriptions();
-            $tableSubscriptions->addSubscription($shopId, $expiresAt);
-
+            $this->_subscriptionsTable->addSubscription($shopId, $expiresAt);
         } catch (\PDOException $ex) {
             throw new \Exception('Database error', 0, $ex);
         } catch (\Exception $ex) {
