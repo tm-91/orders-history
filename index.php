@@ -10,7 +10,8 @@ set_time_limit(0);
 
 try {
     require 'src/bootstrap.php';
-    \Bootstraper::setConfig(\Bootstraper::loadConfig());
+//    \Bootstraper::setConfig(\Bootstraper::loadConfigFile());
+    \Bootstraper::setupConfigs();
     $output = \Bootstraper::processRequestUrl();
     $app = \Bootstraper::getModule($output['module']);
     $app->run($output);
@@ -18,6 +19,13 @@ try {
 
 
 } catch (\Exception $ex) {
+    // todo error handling
+    /*
+     * if (method_exists($app, 'handleError'))
+     * {
+     *      $app->handleError($ex);
+     * }
+     */
     @header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
 
         if (class_exists("\\DreamCommerce\\ShopAppstoreLib\\Logger")) {

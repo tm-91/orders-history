@@ -7,6 +7,15 @@ class Bootstraper
     protected static $_defaultConfigFile = __DIR__. '/Config.php';
     protected static $_config;
 
+    protected static $_logger = false;
+
+    public static function logger(){
+        if (self::$_logger === false) {
+            self::$_logger = new \Logger();
+        }
+        return self::$_logger;
+    }
+
     public static function processRequestUrl(){
         $path = trim($_GET['q'], '/');
         $path = str_replace('\\', '', $path);
@@ -40,8 +49,10 @@ class Bootstraper
                 break;
         }
         $outcome = ['module' => $module, 'query' => $pathElements];
-        \Logger::log('module: ' . $outcome['module']);
-        \Logger::log('query: ' . print_r($outcome['query'], true));
+//        \Logger::log('module: ' . $outcome['module']);
+//        \Logger::log('query: ' . print_r($outcome['query'], true));
+        self::logger()->debug('Requested module: ', $outcome);
+
         return $outcome;
     }
 
@@ -54,7 +65,7 @@ class Bootstraper
         return new $path();
     }
 
-    public static function loadConfig($configFile = false){
+    public static function loadConfigFile($configFile = false){
         if ($configFile === false) {
             $config = require_once self::$_defaultConfigFile;
         } else {
@@ -104,5 +115,9 @@ class Bootstraper
         define("DREAMCOMMERCE_LOG_FILE", $logFile);
 
         self::$_config = $config;
+    }
+
+    public static function setupConfigs(){
+        self::setConfig(self::loadConfigFile());
     }
 }

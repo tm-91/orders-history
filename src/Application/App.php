@@ -33,18 +33,18 @@ class App extends \Core\AbstractApp
 
     const MODULE_NAME = 'Application';
 
-    /**
-     * instantiate
-     * @param array $config
-     */
-    public function __construct()
-    {
-        // parent::__construct();
-        if (empty($_GET['locale'])) {
-            die();
-        }
-        setlocale(LC_ALL, basename($_GET['locale']));
-    }
+//    /**
+//     * instantiate
+//     * @param array $config
+//     */
+//    public function __construct()
+//    {
+////         parent::__construct();
+//        if (empty($_GET['locale'])) {
+//            die();
+//        }
+//        setlocale(LC_ALL, basename($_GET['locale']));
+//    }
 
     /**
      * main application bootstrap
@@ -131,6 +131,15 @@ class App extends \Core\AbstractApp
      */
     public function validateRequest()
     {
+        // todo
+        if (empty($_GET['locale'])) {
+            die();
+        }
+        setlocale(LC_ALL, basename($_GET['locale']));
+
+
+
+
         if (empty($this->getParam('translations'))) {
             throw new \Exception('Invalid request');
         }

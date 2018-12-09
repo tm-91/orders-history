@@ -6,24 +6,46 @@
  * Date: 2018-09-28
  * Time: 18:26
  */
-class Logger
+class Logger extends \DreamCommerce\ShopAppstoreLib\Logger
 {
-    const TYPE_DEBUG = \Psr\Log\LogLevel::DEBUG;
-    const TYPE_ALERT = \Psr\Log\LogLevel::ALERT;
-    const TYPE_CRITICAL = \Psr\Log\LogLevel::CRITICAL;
-    const TYPE_EMERGENCY = \Psr\Log\LogLevel::EMERGENCY;
-    const TYPE_ERROR = \Psr\Log\LogLevel::ERROR;
-    const TYPE_INFO = \Psr\Log\LogLevel::INFO;
-    const TYPE_NOTICE = \Psr\Log\LogLevel::NOTICE;
-    const TYPE_WARNING = \Psr\Log\LogLevel::WARNING;
+    public $_scope = '';
+    protected $config = [];
 
-    protected static $_logger = false;
-
-    public static function log($message, $level = self::TYPE_DEBUG) {
-        if (self::$_logger === false) {
-            self::$_logger = new \DreamCommerce\ShopAppstoreLib\Logger();
-        }
-        self::$_logger->log($level, $message);
+    public function __construct($config)
+    {
+//        if(!defined("DREAMCOMMERCE_LOG_FILE")) {
+//            throw new \Exception('Can not initialize logger. setup configs first');
+//        }
+        $this->config = $config;
     }
 
+    public function setScope(array $scope) {
+        $this->_scope = '[' . implode('][', $scope) . ']';
+    }
+
+    /**
+     * @param string|array $scope
+     */
+    public function addScope($scope){
+        if (is_array($scope)){
+            $this->_scope = '[' . implode('][', $scope) . '] ';
+        } else {
+            $this->_scope .= '[' . $scope . ']';
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function log($level, $message, array $context = array()){
+        parent::log($level, $this->_scope . ' ' . $message, $context);
+    }
+
+    public function test(){
+        if ($this->config['debug']){
+            echo $this->_scope . 'logger test' . PHP_EOL;
+        } else {
+            echo $this->_scope . 'debug mode is off' . PHP_EOL;
+        }
+    }
 }
