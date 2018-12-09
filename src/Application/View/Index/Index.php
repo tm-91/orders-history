@@ -47,6 +47,7 @@
                 }
             }());
         </script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     </head>
     <body>
         <main class="rwd-layout-width rwd-layout-container">
@@ -57,11 +58,15 @@
                 ?>
                 <div class="history_container">
                     <?php
-                    foreach ($historyEntries as $entry){
+                    // foreach ($historyEntries as $entry){
+                    $counter = count($historyEntries);
+
+                    for($i = 0; $i < $counter; $i++) {
                         $view = new \Application\View\View(
                                 'Index/History/historyEntry',
                             [
-                                'entry' => $entry,
+                                'entryNumber' => $i,
+                                'entry' => $historyEntries[$i],
                                 'translations' => $translations
                             ]
                         );
@@ -127,8 +132,16 @@
 .entry_data {
     display: inline-block;
     float: left;
+    margin: 5px 5px 5px 0;
 }
 
         </style>
+        <script>
+// $(".entry_date_wrapper").click(function(event){
+//     var clicked = $(event.target);
+//     var child = clicked.parentNode.getChildren('.entry_date_wrapper')[0];
+//     child.slideToggle();
+//     });
+        </script>
     </body>
 </html>
