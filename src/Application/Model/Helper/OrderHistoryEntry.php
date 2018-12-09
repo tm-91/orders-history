@@ -84,10 +84,14 @@ class OrderHistoryEntry
     }
 
     /**
+     * @param null $format
      * @return mixed
      */
-    public function getDate($format = 'd.m.Y H:i:s'){
-        return $this->_date->format($format);
+    public function getDate($format = null){
+        if ($format) {
+            return $this->_date->format($format);
+        }
+        return $this->_date;
     }
 
     /**

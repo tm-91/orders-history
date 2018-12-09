@@ -61,7 +61,12 @@ class App extends \Core\AbstractApp
 
         $this->_locale = basename($this->getParam('translations'));
 
-        $this->_shop = Shop::getInstance($this->getParam('shop'));
+        $this->_shop = Shop::getInstance(
+            $this->getParam('shop'),
+            new \Core\Model\Tables\Shops(),
+            new \Core\Model\Tables\AccessTokens(),
+            new \Core\Model\Tables\Queries()
+        );
         // detect if shop is already installed
         if (!$this->_shop) {
             throw new \Exception('shop is not installed! license: ' . $this->getParam('shop'));

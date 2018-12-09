@@ -102,10 +102,10 @@ class Shop
     }
 
     public function getUrl(){
-        if ($this->_token === false) {
+        if ($this->_url === false) {
             $this->_getInstalledShopData();
         }
-        return $this->_token;
+        return $this->_url;
     }
 
     protected function _getInstalledShopData(){

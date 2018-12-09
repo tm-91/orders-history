@@ -63,11 +63,12 @@ class BillingSystem
             }
 
             if ($update) {
-                $this->_shopsTable->updateShop(
+                $tableShops->updateShop(
                     $shopId,
                     [
                         $tableShops::COLUMN_SHOP_URL => $args['shop_url'],
                         $tableShops::COLUMN_VERSION => $args['application_version'],
+                        $tableShops::COLUMN_INSTALLED => 1
                     ]
                 );
             } else {

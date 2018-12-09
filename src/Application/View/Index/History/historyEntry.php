@@ -1,7 +1,7 @@
 <div class="h-entry-container">
 
 <div class="entry-data date">
-	<?= $entry->getDate(); ?>
+	<?= $entry->getDate('d.m.Y H:i:s'); ?>
 </div>
 
 <?php if ($addedData = $entry->getAddedData()): ?>
