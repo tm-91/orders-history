@@ -55,7 +55,7 @@
                 echo 'HISTORIA EDYCJI</br></br>';
                 echo 'ilość wpisów: ' . count($historyEntries);
                 ?>
-                <div class="history-container">
+                <div class="history_container">
                     <?php
                     foreach ($historyEntries as $entry){
                         $view = new \Application\View\View(
@@ -75,28 +75,58 @@
         </main>
         <script src="//cdn.dcsaas.net/js/appstore-sdk.js"></script>
         <style>
-.history-container {
-    /*max-width: 80%;*/
-    /*height: auto;*/
+.history_container {
+    position: relative;
+    display: block;
 }
 
-.h-entry-container {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    /* max-width: 80%; */
-    /* height: auto; */
-    padding: 5px;
-}
-
-.entry-data.date {
-    clear: left;
-}
-
-.entry-data {
-    padding: 5px;
-    margin-bottom: 10px;
+.history_container:before {
+    position: absolute;
+    content: '';
+    width: 8px;
+    height: 100%;
+    background-color: #2c5f88;
     float: left;
-    /*max-width: 20%;*/
+    margin: 0 0 0 -50px;
+}
+
+.entry_container {
+    padding: 1em 1em 1em 0;
+}
+
+.entry_date_wrapper {
+    position: relative;
+}
+
+.entry_date_wrapper:before {
+    position: absolute;
+    top: 50%;
+    content: '';
+    width: 25px;
+    height: 25px;
+    background-color: #617e94;
+    border-radius: 15px;
+    border: 5px solid #2c5f88;
+    margin: -15px 0 0 -58.5px;
+}
+
+.entry_date_wrapper:hover:before {
+    background-color: #38f689;
+}
+
+.entry_data_wrapper {
+    display: inline-block;
+}
+
+.entry_column {
+    background-color: white;
+    padding: 1em;
+    margin-right: 1em;
+}
+
+.entry_data {
+    display: inline-block;
+    float: left;
 }
 
         </style>
