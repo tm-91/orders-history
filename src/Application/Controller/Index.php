@@ -15,12 +15,4 @@ class Index extends \Core\Controller\Controller
         $view->render();
     }
 
-    public function test(){
-//        \Application\App::log()->debug('');
-//        \Logger::getLogger()->debug('');
-//        $this->_app->logger()->test();
-        \Application\App::logger()->test();
-
-
-    }
 }

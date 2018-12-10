@@ -10,7 +10,7 @@
 		Dodano:
 	</div>
 	<div class="content">
-		<?php 
+		<?php
 //		foreach ($addedData as $key => $val) {
 //			echo $key . ': ';
 //			if (is_array($val)){

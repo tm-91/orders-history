@@ -11,7 +11,7 @@ class Logger extends \DreamCommerce\ShopAppstoreLib\Logger
     public $_scope = '';
     protected $config = [];
 
-    public function __construct($config)
+    public function __construct(array $config)
     {
 //        if(!defined("DREAMCOMMERCE_LOG_FILE")) {
 //            throw new \Exception('Can not initialize logger. setup configs first');

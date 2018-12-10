@@ -11,7 +11,7 @@ set_time_limit(0);
 try {
     require 'src/bootstrap.php';
 //    \Bootstraper::setConfig(\Bootstraper::loadConfigFile());
-    \Bootstraper::setupConfigs();
+    \Bootstraper::bootstrap();
     $output = \Bootstraper::processRequestUrl();
     $app = \Bootstraper::getModule($output['module']);
     $app->run($output);

@@ -5,14 +5,13 @@ class Bootstraper
     const DEFAULT_MODULE = 'Application';
     const MODULE_CLASS_NAME = 'App';
     protected static $_defaultConfigFile = __DIR__. '/Config.php';
-    protected static $_config;
-
+    protected static $_config = false;
     protected static $_logger = false;
 
+    /**
+     * @return bool|\Logger
+     */
     public static function logger(){
-        if (self::$_logger === false) {
-            self::$_logger = new \Logger();
-        }
         return self::$_logger;
     }
 
@@ -65,15 +64,11 @@ class Bootstraper
         return new $path();
     }
 
-    public static function loadConfigFile($configFile = false){
-        if ($configFile === false) {
-            $config = require_once self::$_defaultConfigFile;
-        } else {
-            $config = require_once $configFile;
-        }
-        return $config;
-    }
-
+    /**
+     * @param bool $config
+     * @return mixed
+     * @throws Exception
+     */
     public static function getConfig($config = false) {
         if ($config !== false) {
             if (isset(self::$_config[$config])) {
@@ -117,7 +112,8 @@ class Bootstraper
         self::$_config = $config;
     }
 
-    public static function setupConfigs(){
-        self::setConfig(self::loadConfigFile());
+    public static function bootstrap(){
+        self::setConfig(require_once self::$_defaultConfigFile);
+        self::$_logger = new \Logger(self::getConfig());
     }
 }
