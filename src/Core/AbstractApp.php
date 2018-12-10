@@ -25,7 +25,7 @@ abstract class AbstractApp implements AppInterface
 
     public function bootstrap(){
         static::$config = static::getConfig();
-        $logger = new \Logger(static::$config);
+        $logger = new \Logger(static::getConfig());
         $logger->setScope([static::MODULE_NAME]);
         $this->_logger = $logger;
     }
@@ -48,11 +48,6 @@ abstract class AbstractApp implements AppInterface
      * @return \Logger
      */
     public function logger() {
-        if ($this->_logger === false) {
-            $logger = new \Logger(static::$config);
-            $logger->setScope([static::MODULE_NAME]);
-            $this->_logger = $logger;
-        }
         return $this->_logger;
     }
 
