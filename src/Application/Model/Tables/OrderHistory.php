@@ -79,7 +79,7 @@ class OrderHistory
         try {
             return $stm->execute();
         } catch (\PDOException $e) {
-            \Webhooks\App::log("Error: " . $e->getMessage() . "\n");
+            \Webhooks\App::logger("Error: " . $e->getMessage() . "\n");
         }
         return false;
     }

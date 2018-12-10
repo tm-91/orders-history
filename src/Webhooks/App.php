@@ -130,7 +130,7 @@ class App extends \Core\AbstractApp
         $sha1 = sha1($this->getParam('id') . ':' . $secretKey . ':' . $this->fetchRequestData(true));
 
         if ($sha1 != $this->getParam('sha1')) {
-            self::log('Webhook validation failed. bad checksum: ' . $sha1);
+            self::logger()->error('Webhook validation failed. bad checksum: ' . $sha1);
             exit();
         }
         return true;

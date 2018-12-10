@@ -14,7 +14,7 @@ class View
 	public function __construct($viewDirectory, array $params = array(), \Logger $logger){
 		$this->_params = $params;
         $this->_viewDirectory = $viewDirectory;
-        $logger->addScope('View');
+        $logger->_addScope('View');
         $this->_logger = $logger;
 	}
 

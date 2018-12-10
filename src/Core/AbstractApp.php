@@ -26,7 +26,7 @@ abstract class AbstractApp implements AppInterface
     public function bootstrap(){
         static::$config = static::getConfig();
         $logger = new \Logger(static::getConfig());
-        $logger->setScope([static::MODULE_NAME]);
+        $logger->_setScope([static::MODULE_NAME]);
         $this->_logger = $logger;
     }
 
@@ -36,29 +36,12 @@ abstract class AbstractApp implements AppInterface
         return \Bootstraper::getConfig($config);
     }
 
-//    public static function log($message, $type = \Logger::TYPE_DEBUG){
-//        if (is_array($message)){
-//            \Logger::log('[module: ' . static::MODULE_NAME . '] ' . print_r($message, true), $type);
-//        } else {
-//            \Logger::log('[module: ' . static::MODULE_NAME . '] ' . $message, $type);
-//        }
-//    }
-
     /**
      * @return \Logger
      */
     public function logger() {
         return $this->_logger;
     }
-
-//    /**
-//     * @return \Logger
-//     */
-//    public function logger(){
-//        $logger = new \Logger();
-//        $logger->setScope([static::MODULE_NAME]);
-//        return $logger;
-//    }
 
     /**
      * dispatcher
@@ -68,7 +51,7 @@ abstract class AbstractApp implements AppInterface
     public function dispatch(array $urlElements = null)
     {
         if (is_null($urlElements)){
-            static::log('invalid argument passed to dispatch method');
+            static::logger()->error('invalid argument passed to dispatch method');
             throw new \Exception('invalid argument passed to dispatcher method');
         }
         $controller = false;
@@ -92,12 +75,12 @@ abstract class AbstractApp implements AppInterface
         $action = $actionName . 'Action';
 
         if (!class_exists($controller)) {
-            static::log('Controller name "' . $controller . '" not found');
+            static::logger()->error('Controller name "' . $controller . '" not found');
             throw new \Exception('Controller "' . $controller . '" not found');
         }
 
         if (!is_callable(array($controller, $action))) {
-            static::log('Action "' . $actionName . '" not found');
+            static::logger()->error('Action "' . $actionName . '" not found');
             throw new \Exception('Action "' . $actionName . '" not found');
         }
 
@@ -107,14 +90,11 @@ abstract class AbstractApp implements AppInterface
         $controller = new $controller($this);
         $success = call_user_func_array(array($controller, $action), $urlElements);
         if ($success === false) {
-            static::log('Failed to run method "' . $action . '" of class "' . $controller . '"');
+            static::logger()->error('Failed to run method "' . $action . '" of class "' . $controller . '"');
             throw new \Exception('Failed to run method "' . $action . '" of class "' . $controller . '"');
         }
         
         $this->_calledController = $controllerName;
         $this->_calledAction = $actionName;
     }
-
-    // todo
-    // errorHandler use set_exception_handler()
 }
