@@ -138,11 +138,11 @@
 
         </style>
         <script>
-// $(".entry_date_wrapper").click(function(event){
-//     var clicked = $(event.target);
-//     var child = clicked.parentNode.getChildren('.entry_date_wrapper')[0];
-//     child.slideToggle();
-//     });
+$(function() {
+ $('.entry_date_wrapper').on('click', function() {
+    $(this).next('.entry_data_wrapper').toggle();
+ });
+});
         </script>
     </body>
 </html>
