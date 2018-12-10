@@ -63,12 +63,13 @@
 
                     for($i = 0; $i < $counter; $i++) {
                         $view = new \Application\View\View(
-                                'Index/History/historyEntry',
+                            'Index/History/historyEntry',
                             [
                                 'entryNumber' => $i,
                                 'entry' => $historyEntries[$i],
                                 'translations' => $translations
-                            ]
+                            ],
+                            $this->logger()
                         );
                         $view->render();
 //                        require 'History/historyEntry.php';

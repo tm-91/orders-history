@@ -71,4 +71,8 @@ class View
 		}
 		echo '</div>';
 	}
+
+	public function logger(){
+		return $this->_logger;
+	}
 }

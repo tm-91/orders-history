@@ -38,10 +38,11 @@ class Logger extends \DreamCommerce\ShopAppstoreLib\Logger
     public function _addScope($scope){
         if (is_array($scope)){
             $this->_scope = array_merge($this->_scope, $scope);
+            $this->_scopeString .= $this->_toScopeString($scope);
         } else {
             $this->_scope[] = $scope;
+            $this->_scopeString .= $this->_toScopeString([$scope]);
         }
-        $this->_scopeString .= $this->_toScopeString($scope);
     }
 
     /**
