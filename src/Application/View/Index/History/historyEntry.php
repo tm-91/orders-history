@@ -4,7 +4,7 @@
 			<?= $entry->getDate('d.m.Y H:i:s'); ?>
 		</div>
 	</div>
-	<div class="entry_data_wrapper" style="display: none;">
+	<div class="entry_data_wrapper">
 
 		<?php if ($addedData = $entry->getAddedData()): ?>
 		<div class="entry_data entry_column added">

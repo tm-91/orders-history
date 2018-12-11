@@ -47,7 +47,7 @@
                 }
             }());
         </script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <!-- // <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
     </head>
     <body>
         <main class="rwd-layout-width rwd-layout-container">
@@ -58,15 +58,11 @@
                 ?>
                 <div class="history_container">
                     <?php
-                    // foreach ($historyEntries as $entry){
-                    $counter = count($historyEntries);
-
-                    for($i = 0; $i < $counter; $i++) {
+                    foreach ($historyEntries as $entry){
                         $view = new \Application\View\View(
                             'Index/History/historyEntry',
                             [
-                                'entryNumber' => $i,
-                                'entry' => $historyEntries[$i],
+                                'entry' => $entry,
                                 'translations' => $translations
                             ],
                             $this->logger()
@@ -136,13 +132,39 @@
     margin: 5px 5px 5px 0;
 }
 
+.hide_entry {
+    display: none;
+}
+
         </style>
         <script>
-$(function() {
+/*$(function() {
  $('.entry_date_wrapper').on('click', function() {
     $(this).next('.entry_data_wrapper').toggle();
  });
-});
+});*/
+
+/*(function(){
+var elements = document.querySelectorAll('.entry_data_wrapper');
+for (var i = 0; i < elements.length; i++) {
+    elements[i].classList.add('hide_entry');
+}
+}());*/
+
+/*document.querySelector('.history_container').addEventListener("mousedown",function(event){
+    var elem = event.target;
+    if (elem.classList.contains('entry_date')){
+        // var num = elem.attributes.number.value;
+        // var elemData = document.querySelector(' .entry_data_wrapper[number=' + number + '];');
+        // elemData.classList.remove("hide");
+        // elemData
+
+        elem.offsetParent.nextElementSibling.classList.toggle('hide_entry');
+    }
+}
+);*/
+
+
         </script>
     </body>
 </html>
