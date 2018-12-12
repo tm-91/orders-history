@@ -21,7 +21,8 @@ class Index extends AbstractController
      */
     public function installAction($arguments)
     {
-        $this->billing()->installShop($arguments);
+        $shopId = $this->billing()->installShop($arguments);
+        \Core\Model\Shop::getInstanceById()
     }
 
     /**

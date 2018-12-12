@@ -38,9 +38,17 @@ class Shop
         $this->_accessTokensTable = $accessTokensTable;
         $this->_complexQueriesTable = $complexQueriesTable;
     }*/
+
     protected function __construct($shopId){
         $this->_id = $shopId;
+        $this->_shopsTable = new \Core\Model\Tables\Shops();
+        $this->_accessTokensTable = new \Core\Model\Tables\AccessTokens();
+        $this->_complexQueriesTable = new \Core\Model\Tables\Queries();
     }
+
+    /*protected function __construct($shopId){
+        $this->_id = $shopId;
+    }*/
 
     /*public static function installShop($license, $url, $appVersion, TableShops $tableShops) {
         if ($tableShops->addShop($license, $url, $appVersion)) {
@@ -61,7 +69,7 @@ class Shop
         return false;
     }*/
 
-    public static function getInstance(
+    /*public static function getInstance(
         $license,
         TableShops $tableShops,
         TableAccessTokens $tableAccessTokens,
@@ -75,7 +83,25 @@ class Shop
             return $shop;
         }
         return false;
+    }*/
+
+    public static function getInstance($license){
+        $tableShops = new \Core\Model\Tables\Shops();
+        if ($id = $tableShops->getShopId($license)) {
+            $shop = new static($id);
+            return $shop;
+        }
+        return false;
     }
+
+    public static function getInstanceById($id){
+        return new static($id);
+    }
+/*
+new \Core\Model\Tables\Shops(),
+new \Core\Model\Tables\AccessTokens(),
+new \Core\Model\Tables\Queries()
+    */
 
     public function getId(){
         return $this->_id;

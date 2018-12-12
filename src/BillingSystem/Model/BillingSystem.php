@@ -104,6 +104,8 @@ class BillingSystem
             }
 
             $db->commit();
+
+            return $shopId;
         } catch (\PDOException $ex) {
             if ($db->inTransaction()) {
                 $db->rollBack();
