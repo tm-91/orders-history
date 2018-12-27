@@ -174,10 +174,27 @@ class App extends \Core\AbstractApp
         return $url . '?' . $query;
     }
 
-    public function getView(array $params = array()){
+    /*public function getView(array $params = array()){
         $translations = require 'translations.php';
         $params['translations'] = $translations[$this->getLocale()];
         $namespace = '\\' . self::MODULE_NAME . '\\' . self::VIEW_NAMESPACE . '\\' . 'View';
         return new $namespace($this->_calledController . DIRECTORY_SEPARATOR . ucfirst($this->_calledAction), $params, $this->logger());
+    }*/
+
+    public function getView($viewPath = null){
+        $translations = require 'translations.php';
+        $params['translations'] = $translations[$this->getLocale()];
+        $namespace = '\\' . self::MODULE_NAME . '\\' . self::VIEW_NAMESPACE . '\\' . 'View';
+        if ($viewPath == null) {
+            $viewPath = $this->_calledController . DIRECTORY_SEPARATOR . ucfirst($this->_calledAction);
+        }
+        return new $namespace($viewPath, $this->logger());
+    }
+
+    public function handleException(\Exception $exception)
+    {
+//        $this->callControllerAction('Error', 'index', ['exception' => $exception]);
+        parent::handleException($exception);
+        $this->getView('Error')->render();
     }
 }

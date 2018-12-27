@@ -11,15 +11,15 @@ class View
      */
     protected $_logger = false;
 
-	public function __construct($viewDirectory, array $params = array(), \Logger $logger){
-		$this->_params = $params;
+	public function __construct($viewDirectory, \Logger $logger){
+//		$this->_params = $params;
         $this->_viewDirectory = $viewDirectory;
         $logger->_addScope('View');
         $this->_logger = $logger;
 	}
 
-	public function setParam($name, $value){
-		$this->_params[$name] = $value;
+	public function setParams(array $params){
+		$this->_params = array_merge($this->_params, $params);
 	}
 
 	public function unsetParam($name) {
@@ -41,11 +41,20 @@ class View
         }
 	}
 
-	public function render(){
+	/*public function render(){
         $this->_logger->debug('rendering ' . $this->_viewDirectory);
         extract($this->_params);
         require __DIR__ . DIRECTORY_SEPARATOR . $this->_viewDirectory . '.php';
-	}
+	}*/
+
+    public function render(array $params = null){
+        $this->_logger->debug('rendering ' . $this->_viewDirectory);
+        if ($params) {
+            $this->setParams($params);
+        }
+        extract($this->_params);
+        require __DIR__ . DIRECTORY_SEPARATOR . $this->_viewDirectory . '.php';
+    }
 
 	public static function echoRec($array, array $translations = null) {
 	    echo '<div style="">';
