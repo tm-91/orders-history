@@ -37,8 +37,8 @@ class Order
      * @return bool
      * @internal param array $data
      */
-    public function insertOrder($shopId, $shopOrderId, array $orderCurrentData){;
-        $stm = \DbHandler::getDb()->prepare('INSERT INTO `orders` (`shop_id`, `shop_order_id`, `order_current_data`) VALUES (:shopId, :orderId, :orderData) ON DUPLICATE KEY UPDATE order_current_data=VALUES(order_current_data)');
+    public function insertOrder($shopId, $shopOrderId, array $orderCurrentData){
+        $stm = \DbHandler::getDb()->prepare('INSERT INTO `orders` (`shop_id`, `shop_order_id`, `order_current_data`) VALUES (:shopId, :shopOrderId, :orderCurrentData) ON DUPLICATE KEY UPDATE order_current_data=VALUES(order_current_data)');
         $stm->bindValue(':shopId', $shopId, \PDO::PARAM_INT);
         $stm->bindValue(':shopOrderId', $shopOrderId, \PDO::PARAM_INT);
         $stm->bindValue(':orderCurrentData', json_encode($orderCurrentData), \PDO::PARAM_STR);

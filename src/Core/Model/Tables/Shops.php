@@ -11,12 +11,16 @@ namespace Core\Model\Tables;
 
 class Shops extends AbstractTable
 {
+    const NAME = 'shops';
+    const COLUMN_ID = 'id';
+    const COLUMN_LICENSE = 'shop';
     const COLUMN_SHOP_URL = 'shop_url';
     const COLUMN_VERSION = 'version';
     const COLUMN_INSTALLED = 'installed';
     const COLUMN_TYPE = [
         self::COLUMN_VERSION => \PDO::PARAM_INT,
-        self::COLUMN_INSTALLED => \PDO::PARAM_INT
+        self::COLUMN_INSTALLED => \PDO::PARAM_INT,
+        self::COLUMN_ID => \PDO::PARAM_INT
     ];
 //    public function getInstalledShopData($shop)
 //    {

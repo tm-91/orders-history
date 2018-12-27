@@ -61,12 +61,7 @@ class App extends \Core\AbstractApp
 
         $this->_locale = basename($this->getParam('translations'));
 
-        $this->_shop = Shop::getInstance(
-            $this->getParam('shop'),
-            new \Core\Model\Tables\Shops(),
-            new \Core\Model\Tables\AccessTokens(),
-            new \Core\Model\Tables\Queries()
-        );
+        $this->_shop = Shop::getInstance($this->getParam('shop'));
         // detect if shop is already installed
         if (!$this->_shop) {
             throw new \Exception('shop is not installed! license: ' . $this->getParam('shop'));
@@ -74,11 +69,11 @@ class App extends \Core\AbstractApp
 
         // refresh token
         if (strtotime($this->_shop->getToken()->expiresAt() - time() < 86400)) {
-            $this->_shop->refreshToken(self::getConfig('appId'), self::getConfig('appSecret'));
+            $this->_shop->refreshToken();
         }
 
         // instantiate SDK client
-        $this->_client = $this->_shop->instantiateSDKClient(self::getConfig('appId'), self::getConfig('appSecret'));
+        $this->_client = $this->_shop->instantiateSDKClient();
     }
 
     public function run(array $data = null)

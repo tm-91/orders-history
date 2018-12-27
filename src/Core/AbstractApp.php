@@ -24,7 +24,6 @@ abstract class AbstractApp implements AppInterface
     protected $_logger = false;
 
     public function bootstrap(){
-        static::$config = static::getConfig();
         $logger = new \Logger(static::getConfig());
         $logger->_setScope([static::MODULE_NAME]);
         $this->_logger = $logger;

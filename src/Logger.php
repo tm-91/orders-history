@@ -48,7 +48,7 @@ class Logger extends \DreamCommerce\ShopAppstoreLib\Logger
     /**
      * {@inheritDoc}
      */
-    public function log($level, $message, array $context = array()){
+    public function log($level, $message, array $context = []){
         parent::log($level, $this->_scopeString . ' ' . $message, $context);
     }
 

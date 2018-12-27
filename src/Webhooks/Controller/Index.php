@@ -30,7 +30,7 @@ class Index extends \Core\Controller\Controller
 
     public function neworderAction(){
         $data = $this->_app->getWebhookData();
-        Order::createNewOrder(
+        Order::addNewOrder(
             $this->_app->shop()->getId(),
             $data['order_id'],
             $data

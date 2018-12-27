@@ -17,28 +17,29 @@ class Order
 	protected $_tableOrdersHistory = false;
 
 
-	protected function __construct($id, $ordersTable, $ordersHistoryTable){
+	public function __construct($id){
 		$this->_id = $id;
-		$this->_tableOrders = $ordersTable;
-		$this->_tableOrdersHistory = $ordersHistoryTable;
+		$this->_bootstrap();
 	}
 
-	public static function createNewOrder($shopId, $orderId, array $currentState){
-        $orderModel = new \Application\Model\Tables\Order();
-        if ($orderModel->insertOrder($shopId, $orderId, $currentState)) {
-            return true;
+	protected function _bootstrap(){
+        $this->_tableOrders = new \Application\Model\Tables\Order();
+        $this->_tableOrdersHistory = new \Application\Model\Tables\OrderHistory();
+    }
+
+	public static function addNewOrder($shopId, $orderId, array $currentState){
+        $orderTable = new \Application\Model\Tables\Order();
+        if ($orderTable->insertOrder($shopId, $orderId, $currentState)) {
+            $id = \DbHandler::getDb()->lastInsertId();
+            return $id;
         }
         return false;
     }
 
     public static function getInstance($shopId, $orderId) {
-        $orderModel = new \Application\Model\Tables\Order();
-        if ($id = $orderModel->getOrderId($shopId, $orderId)){
-            return new self(
-                $id,
-                $orderModel,
-                new \Application\Model\Tables\OrderHistory()
-            );
+        $orderTable = new \Application\Model\Tables\Order();
+        if ($id = $orderTable->getOrderId($shopId, $orderId)){
+            return new self($id);
         }
         return false;
     }

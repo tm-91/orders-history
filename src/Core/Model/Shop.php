@@ -32,6 +32,8 @@ class Shop
      */
     protected $_complexQueriesTable;
 
+    protected $_configs;
+
     /*protected function __construct($shopId, TableShops $shopsTable, TableAccessTokens $accessTokensTable, TableComplexQueries $complexQueriesTable){
         $this->_id = $shopId;
         $this->_shopsTable = $shopsTable;
@@ -39,11 +41,16 @@ class Shop
         $this->_complexQueriesTable = $complexQueriesTable;
     }*/
 
-    protected function __construct($shopId){
+    public function __construct($shopId){
         $this->_id = $shopId;
+        $this->_bootstrap();
+    }
+
+    protected function _bootstrap(){
         $this->_shopsTable = new \Core\Model\Tables\Shops();
         $this->_accessTokensTable = new \Core\Model\Tables\AccessTokens();
         $this->_complexQueriesTable = new \Core\Model\Tables\Queries();
+        $this->_configs = \Bootstraper::getConfig();
     }
 
     /*protected function __construct($shopId){
@@ -85,23 +92,52 @@ class Shop
         return false;
     }*/
 
+    protected function _getConfig($key = null){
+        if ($key !== null) {
+            return $this->_configs[$key];
+        }
+        return $this->_configs;
+    }
+
     public static function getInstance($license){
+        $l = \Bootstraper::logger();
+        $l->_setScope(['core','model','shop']);
+        $l->debug('am in shop getInstance');
         $tableShops = new \Core\Model\Tables\Shops();
-        if ($id = $tableShops->getShopId($license)) {
-            $shop = new static($id);
+        $id = false;
+        try {
+            $id = $tableShops->getShopId($license);
+            $l->debug('going to print shop id');
+        } catch (\PDOException $ex) {
+            $l->debug('pdo exception');
+            throw $ex;
+
+        } catch (\Exception $e) {
+            $l->debug('regular exception');
+            throw $e;
+        }
+        if ($id) {
+            $l->debug('got shop id', [$id]);
+            $shop = new self($id);
             return $shop;
         }
+        $l->debug('shop not found');
         return false;
     }
 
-    public static function getInstanceById($id){
-        return new static($id);
+    public static function isInstalled($id){
+        $tableShops = new \Core\Model\Tables\Shops();
+        return $tableShops->select([\Core\Model\Tables\Shops::COLUMN_INSTALLED], [\Core\Model\Tables\Shops::COLUMN_ID => $id]) == 1 ? true : false;
     }
-/*
-new \Core\Model\Tables\Shops(),
-new \Core\Model\Tables\AccessTokens(),
-new \Core\Model\Tables\Queries()
-    */
+
+    public static function isInstalledByLicense($license) {
+        $tableShops = new \Core\Model\Tables\Shops();
+        return $tableShops->select([\Core\Model\Tables\Shops::COLUMN_INSTALLED], [\Core\Model\Tables\Shops::COLUMN_LICENSE => $license]) == 1 ? true : false;
+    }
+
+    /*public static function getInstanceById($id){
+        return new static($id);
+    }*/
 
     public function getId(){
         return $this->_id;
@@ -149,16 +185,23 @@ new \Core\Model\Tables\Queries()
      * @param $appSecretKey
      * @return Client
      */
-    public function instantiateSDKClient($appId, $appSecretKey)
+    public function instantiateSDKClient()
     {
         /**
          * @var OAuth $client
          */
-        $client = Client::factory(Client::ADAPTER_OAUTH,
+        /*$client = Client::factory(Client::ADAPTER_OAUTH,
             [
                 'entrypoint' => $this->getUrl(),
                 'client_id' => $appId,
                 'client_secret' => $appSecretKey
+            ]
+        );*/
+        $client = Client::factory(Client::ADAPTER_OAUTH,
+            [
+                'entrypoint' => $this->getUrl(),
+                'client_id' => $this->_getConfig('appId'),
+                'client_secret' => $this->_getConfig('appSecret')
             ]
         );
         $client->setAccessToken($this->getToken()->accessToken());
@@ -171,7 +214,7 @@ new \Core\Model\Tables\Queries()
      * @return bool|Tokens
      * @throws \Exception
      */
-    public function refreshToken($appId, $appSecret)
+    public function refreshToken()
     {
         /**
          * @var OAuth $client
@@ -180,8 +223,8 @@ new \Core\Model\Tables\Queries()
             Client::ADAPTER_OAUTH,
             [
                 'entrypoint' => $this->getUrl(),
-                'client_id' => $appId,
-                'client_secret' => $appSecret,
+                'client_id' => $this->_getConfig('appId'),
+                'client_secret' => $this->_getConfig('appSecret'),
                 'refresh_token' => $this->getToken()->refreshToken()
             ]
         );
@@ -212,5 +255,13 @@ new \Core\Model\Tables\Queries()
 //            'refresh_token' => $tokens['refresh_token'],
 //            'access_token' => $tokens['access_token']
 //        ];
+    }
+
+    public function addOrder($orderId, $currentState){
+        return $id = \Application\Model\Order::addNewOrder($this->getId(), $orderId, $currentState);
+    }
+
+    public function getOrder($orderId){
+        return \Application\Model\Order::getInstance($this->getId(), $orderId);
     }
 }

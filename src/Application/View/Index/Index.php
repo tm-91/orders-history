@@ -80,6 +80,8 @@
 .history_container {
     position: relative;
     display: block;
+    padding-left: 70px;
+    overflow-y: auto;
 }
 
 .history_container:before {
@@ -144,14 +146,14 @@
  });
 });*/
 
-/*(function(){
+(function(){
 var elements = document.querySelectorAll('.entry_data_wrapper');
 for (var i = 0; i < elements.length; i++) {
     elements[i].classList.add('hide_entry');
 }
-}());*/
+}());
 
-/*document.querySelector('.history_container').addEventListener("mousedown",function(event){
+document.querySelector('.history_container').addEventListener("mousedown",function(event){
     var elem = event.target;
     if (elem.classList.contains('entry_date')){
         // var num = elem.attributes.number.value;
@@ -162,7 +164,7 @@ for (var i = 0; i < elements.length; i++) {
         elem.offsetParent.nextElementSibling.classList.toggle('hide_entry');
     }
 }
-);*/
+);
 
 
         </script>
