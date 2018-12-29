@@ -113,8 +113,8 @@ abstract class AbstractApp implements AppInterface
             throw new \Exception('Action "' . $actionName . '" not found');
         }
 //
-//        $this->_calledController = $controllerName;
-//        $this->_calledAction = $actionName;
+        $this->_calledController = $controllerName;
+        $this->_calledAction = $actionName;
 
         $controller = new $controller($this);
         $success = call_user_func_array(array($controller, $action), $params);
@@ -123,15 +123,15 @@ abstract class AbstractApp implements AppInterface
             throw new \Exception('Failed to run method "' . $action . '" of class "' . $controller . '"');
         }
 
-        $this->_calledController = $controllerName;
-        $this->_calledAction = $actionName;
+//        $this->_calledController = $controllerName;
+//        $this->_calledAction = $actionName;
     }
 
     public function handleException(\Exception $exception) {
-        $trace = $exception->getTrace();
-        if (!is_array($trace)) {
-            $trace = [$trace];
-        }
-        static::logger()->error($exception->getMessage(), $trace);
+        static::logger()->error(
+            'Message: ' . $exception->getMessage()  . PHP_EOL .
+            'Code: ' . $exception->getCode() . PHP_EOL .
+            'Stack trace: ' . PHP_EOL . $exception->getTraceAsString()
+        );
     }
 }

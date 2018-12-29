@@ -3,7 +3,7 @@ namespace Application\View;
 
 class View
 {
-	protected $_params = null;
+	protected $_params = [];
     protected $_viewDirectory = false;
 
     /**
@@ -52,8 +52,13 @@ class View
         if ($params) {
             $this->setParams($params);
         }
-        extract($this->_params);
-        require __DIR__ . DIRECTORY_SEPARATOR . $this->_viewDirectory . '.php';
+        $filePath = __DIR__ . DIRECTORY_SEPARATOR . $this->_viewDirectory . '.php';
+        if (file_exists($filePath)) {
+            extract($this->_params);
+            require __DIR__ . DIRECTORY_SEPARATOR . $this->_viewDirectory . '.php';
+        } else {
+            throw new \Exception('Did not found view file: ' . $filePath);
+        }
     }
 
 	public static function echoRec($array, array $translations = null) {
