@@ -70,32 +70,6 @@ abstract class AbstractApp implements AppInterface
                 $controllerName = ucfirst(array_shift($urlElements));
                 $actionName = strtolower(array_shift($urlElements));
         }
-        /*$controller = '\\' . static::MODULE_NAME . '\\' . static::CONTROLLER_NAMESPACE . '\\' . $controllerName;
-        $action = $actionName . 'Action';
-
-        if (!class_exists($controller)) {
-            static::logger()->error('Controller name "' . $controller . '" not found');
-            throw new \Exception('Controller "' . $controller . '" not found');
-        }
-
-        if (!is_callable(array($controller, $action))) {
-            static::logger()->error('Action "' . $actionName . '" not found');
-            throw new \Exception('Action "' . $actionName . '" not found');
-        }
-
-        $this->_calledController = $controllerName;
-        $this->_calledAction = $actionName;
-
-        $controller = new $controller($this);
-        $success = call_user_func_array(array($controller, $action), $urlElements);
-        if ($success === false) {
-            static::logger()->error('Failed to run method "' . $action . '" of class "' . $controller . '"');
-            throw new \Exception('Failed to run method "' . $action . '" of class "' . $controller . '"');
-        }
-
-        $this->_calledController = $controllerName;
-        $this->_calledAction = $actionName;*/
-
         $this->callControllerAction($controllerName, $actionName, $urlElements);
     }
 
@@ -122,9 +96,6 @@ abstract class AbstractApp implements AppInterface
             static::logger()->error('Failed to run method "' . $action . '" of class "' . $controller . '"');
             throw new \Exception('Failed to run method "' . $action . '" of class "' . $controller . '"');
         }
-
-//        $this->_calledController = $controllerName;
-//        $this->_calledAction = $actionName;
     }
 
     public function handleException(\Exception $exception) {

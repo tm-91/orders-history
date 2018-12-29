@@ -12,7 +12,6 @@ class View
     protected $_logger = false;
 
 	public function __construct($viewDirectory, \Logger $logger){
-//		$this->_params = $params;
         $this->_viewDirectory = $viewDirectory;
         $logger->_addScope('View');
         $this->_logger = $logger;
@@ -37,15 +36,9 @@ class View
             if ($this->isSetParam($name)) {
                 return $this->_params[$name];
             }
-            // todo throw error
+            return null;
         }
 	}
-
-	/*public function render(){
-        $this->_logger->debug('rendering ' . $this->_viewDirectory);
-        extract($this->_params);
-        require __DIR__ . DIRECTORY_SEPARATOR . $this->_viewDirectory . '.php';
-	}*/
 
     public function render(array $params = null){
         $this->_logger->debug('rendering ' . $this->_viewDirectory);
@@ -71,17 +64,13 @@ class View
                 if (!is_numeric($key)){
                 	echo '<div><h3>' . $key . '</h3></div>';
             	}
-//				echo '--- ' . $key . ' ---</br>';
 				static::echoRec($val, $translations);
-				// echo '------';
 			} else {
                 if ($translations && isset($translations[$key])){
                     $key = $translations[$key];
                 }
 				echo '<div>' . $key . ' : ' . $val . '</div>';
-				// echo $val;
 			}
-			// echo '</br>';
 		}
 		echo '</div>';
 	}

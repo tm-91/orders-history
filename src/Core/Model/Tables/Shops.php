@@ -22,15 +22,6 @@ class Shops extends AbstractTable
         self::COLUMN_INSTALLED => \PDO::PARAM_INT,
         self::COLUMN_ID => \PDO::PARAM_INT
     ];
-//    public function getInstalledShopData($shop)
-//    {
-//        $stmt = \DbHandler::getDb()->prepare('select a.access_token, a.refresh_token, s.shop_url as url, a.expires_at as expires, a.shop_id as id from access_tokens a join shops s on a.shop_id=s.id where s.shop=?');
-//        if (!$stmt->execute(array($shop))) {
-//            return false;
-//        }
-//
-//        return $stmt->fetch();
-//    }
 
     /**
      * @param $license
@@ -45,36 +36,12 @@ class Shops extends AbstractTable
         return false;
     }
 
-    /*public function updateShop($shopId, $shopUrl = null, $appVersion = null){
-        $col = [];
-        if ($shopUrl !== null) {
-            $col[] = ['`shop_url` = :url'];
-        }
-        if ($appVersion !== null) {
-            $col[] = ['`version` = :version'];
-        }
-        $stmt = \DbHandler::getDb()->prepare('UPDATE `shops` SET ' . implode(', ', $col) . ', `installed` = 1 WHERE `id` = :id');
-        $stmt->bindValue(':id', $shopId, \PDO::PARAM_INT);
-        if ($shopUrl !== null){
-            $stmt->bindValue(':url', $shopUrl);
-        }
-        if ($appVersion !== null) {
-            $stmt->bindValue(':version', $appVersion, \PDO::PARAM_INT);
-        }
-        return $stmt->execute();
-    }*/
-
-
-
     public function updateShop($shopId, array $fields){
         $stmt = \DbHandler::getDb()->prepare('UPDATE `shops` SET ' . $this->_getParamsString($fields) . ' WHERE `id` = :id');
         $stmt->bindValue(':id', $shopId, \PDO::PARAM_INT);
         $stmt = $this->_bindValues($stmt, $fields);
         return $stmt->execute();
     }
-
-
-
 
     public function addShop($license, $url, $appVersion){
         $stmt = \DbHandler::getDb()->prepare('INSERT INTO `shops` (`shop`, `shop_url`, `version`, `installed`) VALUES (:license, :url, :version, 1)');

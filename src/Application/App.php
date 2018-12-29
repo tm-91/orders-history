@@ -33,19 +33,6 @@ class App extends \Core\AbstractApp
 
     const MODULE_NAME = 'Application';
 
-//    /**
-//     * instantiate
-//     * @param array $config
-//     */
-//    public function __construct()
-//    {
-////         parent::__construct();
-//        if (empty($_GET['locale'])) {
-//            die();
-//        }
-//        setlocale(LC_ALL, basename($_GET['locale']));
-//    }
-
     /**
      * main application bootstrap
      * @throws \Exception
@@ -174,13 +161,6 @@ class App extends \Core\AbstractApp
         return $url . '?' . $query;
     }
 
-    /*public function getView(array $params = array()){
-        $translations = require 'translations.php';
-        $params['translations'] = $translations[$this->getLocale()];
-        $namespace = '\\' . self::MODULE_NAME . '\\' . self::VIEW_NAMESPACE . '\\' . 'View';
-        return new $namespace($this->_calledController . DIRECTORY_SEPARATOR . ucfirst($this->_calledAction), $params, $this->logger());
-    }*/
-
     public function getView($viewPath = null){
         $translations = require 'translations.php';
         $params['translations'] = $translations[$this->getLocale()];
@@ -193,7 +173,6 @@ class App extends \Core\AbstractApp
 
     public function handleException(\Exception $exception)
     {
-//        $this->callControllerAction('Error', 'index', ['exception' => $exception]);
         parent::handleException($exception);
         $this->getView('Error')->render();
     }

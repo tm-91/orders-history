@@ -3,7 +3,6 @@ namespace Application\Model;
 
 class Order
 {
-//	protected $_shopId;
 	protected $_id;
 
     /**
@@ -51,13 +50,6 @@ class Order
     {
         return $this->_id;
     }
-
-//    /**
-//     * @return mixed
-//     */
-//    public function getShopId() {
-//        return $this->_shopId;
-//    }
 
     /**
      * @return array|bool

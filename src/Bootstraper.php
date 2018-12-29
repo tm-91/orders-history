@@ -48,8 +48,6 @@ class Bootstraper
                 break;
         }
         $outcome = ['module' => $module, 'query' => $pathElements];
-//        \Logger::log('module: ' . $outcome['module']);
-//        \Logger::log('query: ' . print_r($outcome['query'], true));
         self::logger()->debug('Requested module: ', $outcome);
 
         return $outcome;

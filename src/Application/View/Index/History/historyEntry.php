@@ -13,16 +13,6 @@
 			</div>
 			<div class="content">
 				<?php
-		//		foreach ($addedData as $key => $val) {
-		//			echo $key . ': ';
-		//			if (is_array($val)){
-		//				print_r($val);
-		//			} else {
-		//				echo $val;
-		//			}
-		//			echo '</br/>';
-		//		}
-				// print_r($addedData);
 				 \Application\View\View::echoRec($addedData, $translations);
 				?>
 			</div>
@@ -36,16 +26,6 @@
 			</div>
 			<div class="content">
 				<?php
-		//		foreach ($editedData as $key => $val) {
-		//			echo $key . ': ';
-		//			if (is_array($val)){
-		//				print_r($val);
-		//			} else {
-		//				echo $val;
-		//			}
-		//			echo '</br/>';
-		//		}
-				// // print_r($addedData);
 				 \Application\View\View::echoRec($editedData, $translations);
 				?>
 			</div>
@@ -59,16 +39,6 @@
 			</div>
 			<div class="content">
 				<?php
-		//		foreach ($removedData as $key => $val) {
-		//			echo $key . ' : ';
-		//			if (is_array($val)){
-		//				print_r($val);
-		//			} else {
-		//				echo $val;
-		//			}
-		//			echo '</br/>';
-		//		}
-				// print_r($addedData);
 				 \Application\View\View::echoRec($removedData, $translations);
 				?>
 			</div>

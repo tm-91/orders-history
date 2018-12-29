@@ -5,14 +5,6 @@ use Application\Model\Order;
 
 class Index extends \Core\Controller\Controller
 {
-//    public function indexAction(){
-//        $data = $this->_app->getWebhookData();
-//        $order = \Application\Model\Entity\Order::getInstance($this->_app->shop()->getId(), $data['order_id']);
-////        $order = new \Application\Model\Entity\Order($this->_app->shop()->getId(), $data['order_id']);
-//        $changes = $order->geDiff($data);
-//        $order->pushHistory($changes);
-//        $order->pushCurrentState($data);
-//    }
     public function indexAction(){
         $data = $this->_app->getWebhookData();
         $order = Order::getInstance($this->_app->shop()->getId(), $data['order_id']);
@@ -20,13 +12,6 @@ class Index extends \Core\Controller\Controller
         $order->insertHistory($changes);
         $order->updateCurrentData($data);
     }
-
-//    public function neworderAction(){
-//    	$data = $this->_app->getWebhookData();
-////    	$order = new \Application\Model\Entity\Order($this->_app->shop()->getId(), $data['order_id']);
-//    	$order = \Application\Model\Entity\Order::createNewOrder($this->_app->shop()->getId(), $data['order_id'], $data);
-////    	$order->pushCurrentState($data);
-//    }
 
     public function neworderAction(){
         $data = $this->_app->getWebhookData();

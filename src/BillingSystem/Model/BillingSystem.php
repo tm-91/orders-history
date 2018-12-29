@@ -119,14 +119,13 @@ class BillingSystem
         }
     }
 
-    // todo
     public function billingInstall($arguments){
         try {
             $shopId = $this->_getShopId($arguments['shop']);
             // store payment event
             $this->_billingsTable->addBilling($shopId);
         } catch (\PDOException $ex) {
-            throw new \Exception('Database error', 0, $ex);
+            throw new \Exception('Database error during billing install', 0, $ex);
         } catch (\Exception $ex) {
             throw $ex;
         }
