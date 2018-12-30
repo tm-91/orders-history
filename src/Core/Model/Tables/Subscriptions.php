@@ -18,6 +18,13 @@ class Subscriptions extends AbstractTable
         $stmt = \DbHandler::getDb()->prepare('INSERT INTO `subscriptions` (`' . self::COLUMN_SHOP_ID . '`, `' . self::COLUMN_EXPIRES_AT . '`) VALUES (:id, :exp)');
         $stmt->bindValue(':id', $shopId, \PDO::PARAM_INT);
         $stmt->bindValue(':exp', $expiresAt);
-        return $stmt->execute();
+        if ($stmt->execute() === false) {
+        	\Bootstraper::logger()->error(
+        		'Failed to add subscription' . PHP_EOL .
+        		'shop id: ' . $shopId . PHP_EOL .
+        		'expiration time: ' . $expiresAt
+        	);
+        	throw new \Exception('Failed to add subscription for shop id: ' . $shopId);
+        }
     }
 }

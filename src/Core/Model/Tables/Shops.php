@@ -40,7 +40,10 @@ class Shops extends AbstractTable
         $stmt = \DbHandler::getDb()->prepare('UPDATE `shops` SET ' . $this->_getParamsString($fields) . ' WHERE `id` = :id');
         $stmt->bindValue(':id', $shopId, \PDO::PARAM_INT);
         $stmt = $this->_bindValues($stmt, $fields);
-        return $stmt->execute();
+        if ($stmt->execute() === false) {
+            \Bootstraper::logger()->error('failed to update shop id ' . $shopId . ' fields: ', $fields);
+            throw new \Exception('Failed to update shop id: ' . $shopId);
+        }
     }
 
     public function addShop($license, $url, $appVersion){
@@ -48,7 +51,15 @@ class Shops extends AbstractTable
         $stmt->bindValue(':license', $license);
         $stmt->bindValue(':url', $url);
         $stmt->bindValue(':version', $appVersion, \PDO::PARAM_INT);
-        return $stmt->execute();
+        if ($stmt->execute()) {
+            \Bootstraper::logger()->error(
+                'Failed to add shop to databese.' . PHP_EOL . 
+                'license: ' . $license . PHP_EOL .
+                'url: ' . $url . PHP_EOL .
+                'application vesrion: ' . $appVersion . PHP_EOL
+            );
+            throw new \Exception('Failed to add shop to databese');
+        }
     }
 
 }

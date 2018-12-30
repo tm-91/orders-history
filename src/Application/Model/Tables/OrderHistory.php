@@ -76,12 +76,9 @@ class OrderHistory
         foreach ($values as $key => $val) {
             $stm->bindValue($key, $val, \PDO::PARAM_STR);
         }
-        try {
-            return $stm->execute();
-        } catch (\PDOException $e) {
-            \Webhooks\App::logger("Error: " . $e->getMessage() . "\n");
+        if ($stm->execute() === false) {
+            throw new \Exception('Failed to add history entry to order id: ' . $orderId);
         }
-        return false;
     }
 
     /**
@@ -91,6 +88,8 @@ class OrderHistory
     public function removeOrderHistory($orderId){
         $stm = \DbHandler::getDb()->prepare('DELETE FROM `orders_history` WHERE `order_id`=:orderId;');
         $stm->bindValue(':orderId', $orderId, \PDO::PARAM_INT);
-        return $stm->execute();
+        if ($stm->execute() === false) {
+            throw new \Exception('Failed to remove history entry of order id: ' . $orderId);
+        }
     }
 }

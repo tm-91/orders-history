@@ -23,7 +23,10 @@ class AccessTokens extends AbstractTable
         $stmt = \DbHandler::getDb()->prepare('UPDATE `access_tokens` SET ' . $this->_getParamsString($fieldsAndValues) . ' WHERE `shop_id` = :shopId');
         $stmt->bindValue(':shopId', $shopId, \PDO::PARAM_INT);
         $stmt = $this->_bindValues($stmt, $fieldsAndValues);
-        return $stmt->execute();
+        if ($stmt->execute() === false) {
+            \Bootstraper::logger()->error('Failed to update tokens for shop id: ' . $shopId, $fieldsAndValues);
+            throw new \Exception('Failed to update tokens for shop id: ' . $shopId);
+        }
     }
 
     public function addToken($shopId, $expirationDate, $accessToken, $refreshToken){
@@ -32,6 +35,15 @@ class AccessTokens extends AbstractTable
         $stmt->bindValue(':expires', $expirationDate);
         $stmt->bindValue(':access', $accessToken);
         $stmt->bindValue(':refresh', $refreshToken);
-        return $stmt->execute();
+        if ($stmt->execute() === false) {
+            \Bootstraper::logger()->error(
+                'Failed to add tokens.' . PHP_EOL .
+                'shop id: ' . $shopId . PHP_EOL .
+                'expiration date: ' . $expirationDate . PHP_EOL .
+                'access token: ' . $accessToken . PHP_EOL .
+                'refresh token: ' . $refreshToken
+            );
+            throw new \Exception('Failed to add tokens for shop id: ' . $shopId);
+        }
     }
 }

@@ -28,11 +28,8 @@ class Order
 
 	public static function addNewOrder($shopId, $orderId, array $currentState){
         $orderTable = new \Application\Model\Tables\Order();
-        if ($orderTable->insertOrder($shopId, $orderId, $currentState)) {
-            $id = \DbHandler::getDb()->lastInsertId();
-            return $id;
-        }
-        return false;
+        $orderTable->insertOrder($shopId, $orderId, $currentState);
+        return \DbHandler::getDb()->lastInsertId();
     }
 
     public static function getInstance($shopId, $orderId) {
@@ -40,7 +37,7 @@ class Order
         if ($id = $orderTable->getOrderId($shopId, $orderId)){
             return new self($id);
         }
-        return false;
+        throw new \Exception('Did not found order id: ' . $orderId . ' in shop id: ' . $shopId);
     }
 
     /**

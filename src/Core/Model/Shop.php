@@ -54,29 +54,11 @@ class Shop
     }
 
     public static function getInstance($license){
-        $l = \Bootstraper::logger();
-        $l->_setScope(['core','model','shop']);
-        $l->debug('am in shop getInstance');
         $tableShops = new \Core\Model\Tables\Shops();
-        $id = false;
-        try {
-            $id = $tableShops->getShopId($license);
-            $l->debug('going to print shop id');
-        } catch (\PDOException $ex) {
-            $l->debug('pdo exception');
-            throw $ex;
-
-        } catch (\Exception $e) {
-            $l->debug('regular exception');
-            throw $e;
+        if ($id = $tableShops->getShopId($license)) {
+            return new self($id);
         }
-        if ($id) {
-            $l->debug('got shop id', [$id]);
-            $shop = new self($id);
-            return $shop;
-        }
-        $l->debug('shop not found');
-        return false;
+        throw new \Exception('Did not found shop with license: ' . $license);
     }
 
     public static function isInstalled($id){
@@ -126,7 +108,7 @@ class Shop
             $this->_token = new Tokens($data['access_token'], $data['refresh_token'], $data['expires']);
             return true;
         }
-        return false;
+        throw new \Exception('shop id: ' . $this->getId() . ' is not installed');
     }
 
     /**

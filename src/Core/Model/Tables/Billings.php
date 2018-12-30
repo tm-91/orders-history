@@ -15,6 +15,8 @@ class Billings
         // store payment event
         $stmt = \DbHandler::getDb()->prepare('INSERT INTO `billings` (`shop_id`) VALUES (:id);');
         $stmt->bindValue(':id', $shopId, \PDO::PARAM_INT);
-        return $stmt->execute();
+        if ($stmt->execute() === false) {
+        	throw new \Exception('Failed to add billing to for shop id: ' . $shopId);
+        }
     }
 }

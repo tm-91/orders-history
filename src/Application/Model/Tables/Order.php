@@ -41,7 +41,10 @@ class Order
         $stm->bindValue(':shopId', $shopId, \PDO::PARAM_INT);
         $stm->bindValue(':shopOrderId', $shopOrderId, \PDO::PARAM_INT);
         $stm->bindValue(':orderCurrentData', json_encode($orderCurrentData), \PDO::PARAM_STR);
-        return $stm->execute();
+        if ($stm->execute() === false){
+            \Bootstraper::logger()->error('insert order failed; order data: ', $orderCurrentData);
+            throw new \Exception('Failed to add order id: ' . $shopOrderId . ' to shop id: ' . $shopId);
+        }
     }
 
 
@@ -49,12 +52,17 @@ class Order
         $stm = \DbHandler::getDb()->prepare('UPDATE TABLE `orders` SET `order_current_data`=:orderCurrentData WHERE `id`=:id');
         $stm->bindValue(':id', $id, \PDO::PARAM_INT);
         $stm->bindValue(':orderCurrentData', json_encode($orderCurrentData), \PDO::PARAM_STR);
-        return $stm->execute();
+        if ($stm->execute() === false){
+            \Bootstraper::logger()->error('update order failed; order data: ', $orderCurrentData);
+            throw new \Exception('Failed to update order id: ' . $id);
+        }
     }
 
     public function removeOrder($id){
         $stm = \DbHandler::getDb()->prepare('DELETE FROM `orders` WHERE `id`=:id;');
         $stm->bindValue(':id', $id, \PDO::PARAM_INT);
-        return $stm->execute();
+        if ($stm->execute() === false){
+            throw new \Exception('Failed to remove order id: ' . $id);
+        }
     }
 }
