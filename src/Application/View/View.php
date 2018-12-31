@@ -3,7 +3,7 @@ namespace Application\View;
 
 class View
 {
-	protected $_params = null;
+	protected $_params = [];
     protected $_viewDirectory = false;
 
     /**
@@ -11,15 +11,14 @@ class View
      */
     protected $_logger = false;
 
-	public function __construct($viewDirectory, array $params = array(), \Logger $logger){
-		$this->_params = $params;
+	public function __construct($viewDirectory, \Logger $logger){
         $this->_viewDirectory = $viewDirectory;
         $logger->_addScope('View');
         $this->_logger = $logger;
 	}
 
-	public function setParam($name, $value){
-		$this->_params[$name] = $value;
+	public function setParams(array $params){
+		$this->_params = array_merge($this->_params, $params);
 	}
 
 	public function unsetParam($name) {
@@ -37,15 +36,23 @@ class View
             if ($this->isSetParam($name)) {
                 return $this->_params[$name];
             }
-            // todo throw error
+            return null;
         }
 	}
 
-	public function render(){
+    public function render(array $params = null){
         $this->_logger->debug('rendering ' . $this->_viewDirectory);
-        extract($this->_params);
-        require __DIR__ . DIRECTORY_SEPARATOR . $this->_viewDirectory . '.php';
-	}
+        if ($params) {
+            $this->setParams($params);
+        }
+        $filePath = __DIR__ . DIRECTORY_SEPARATOR . $this->_viewDirectory . '.php';
+        if (file_exists($filePath)) {
+            extract($this->_params);
+            require __DIR__ . DIRECTORY_SEPARATOR . $this->_viewDirectory . '.php';
+        } else {
+            throw new \Exception('Did not found view file: ' . $filePath);
+        }
+    }
 
 	public static function echoRec($array, array $translations = null) {
 	    echo '<div style="">';
@@ -57,17 +64,13 @@ class View
                 if (!is_numeric($key)){
                 	echo '<div><h3>' . $key . '</h3></div>';
             	}
-//				echo '--- ' . $key . ' ---</br>';
 				static::echoRec($val, $translations);
-				// echo '------';
 			} else {
                 if ($translations && isset($translations[$key])){
                     $key = $translations[$key];
                 }
 				echo '<div>' . $key . ' : ' . $val . '</div>';
-				// echo $val;
 			}
-			// echo '</br>';
 		}
 		echo '</div>';
 	}

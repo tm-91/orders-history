@@ -14,9 +14,6 @@ class Logger extends \DreamCommerce\ShopAppstoreLib\Logger
 
     public function __construct(array $config)
     {
-//        if(!defined("DREAMCOMMERCE_LOG_FILE")) {
-//            throw new \Exception('Can not initialize logger. setup configs first');
-//        }
         $this->config = $config;
     }
 
@@ -51,12 +48,4 @@ class Logger extends \DreamCommerce\ShopAppstoreLib\Logger
     public function log($level, $message, array $context = []){
         parent::log($level, $this->_scopeString . ' ' . $message, $context);
     }
-
-    /*public function test(){
-        if ($this->config['debug']){
-            echo $this->_scope . 'logger test' . PHP_EOL;
-        } else {
-            echo $this->_scope . 'debug mode is off' . PHP_EOL;
-        }
-    }*/
 }

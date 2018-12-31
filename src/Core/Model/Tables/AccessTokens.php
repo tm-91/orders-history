@@ -11,11 +11,6 @@ namespace Core\Model\Tables;
 
 class AccessTokens extends AbstractTable
 {
-
-//    public function updateTokens($refreshToken, $accessToken, $expirationDate, $shopId){
-//        $stmt = \DbHandler::getDb()->prepare('update access_tokens set refresh_token=?, access_token=?, expires_at=? where shop_id=?');
-//        $stmt->execute([$refreshToken, $accessToken, $expirationDate, $shopId]);
-//    }
     const COLUMN_SHOP_ID = 'shop_id';
     const COLUMN_EXPIRES_AT = 'expires_at';
     const COLUMN_ACCESS_TOKEN = 'access_token';
@@ -28,17 +23,11 @@ class AccessTokens extends AbstractTable
         $stmt = \DbHandler::getDb()->prepare('UPDATE `access_tokens` SET ' . $this->_getParamsString($fieldsAndValues) . ' WHERE `shop_id` = :shopId');
         $stmt->bindValue(':shopId', $shopId, \PDO::PARAM_INT);
         $stmt = $this->_bindValues($stmt, $fieldsAndValues);
-        return $stmt->execute();
+        if ($stmt->execute() === false) {
+            \Bootstraper::logger()->error('Failed to update tokens for shop id: ' . $shopId, $fieldsAndValues);
+            throw new \Exception('Failed to update tokens for shop id: ' . $shopId);
+        }
     }
-
-    /*public function updateTokens($shopId, $expirationDate, $accessToken, $refreshToken){
-        $stmt = \DbHandler::getDb()->prepare('UPDATE `access_tokens` SET `expires_at` = :expires, `access_token` = :access, `refresh_token` = :refresh WHERE `shop_id` = :shopId');
-        $stmt->bindValue(':expires', $expirationDate);
-        $stmt->bindValue(':access', $accessToken);
-        $stmt->bindValue(':refresh', $refreshToken);
-        $stmt->bindValue(':shopId', $shopId, \PDO::PARAM_INT);
-        return $stmt->execute();
-    }*/
 
     public function addToken($shopId, $expirationDate, $accessToken, $refreshToken){
         $stmt = \DbHandler::getDb()->prepare('INSERT INTO `access_tokens` (`shop_id`, `expires_at`, `access_token`, `refresh_token`) VALUES (?,?,?,?)');
@@ -46,6 +35,15 @@ class AccessTokens extends AbstractTable
         $stmt->bindValue(':expires', $expirationDate);
         $stmt->bindValue(':access', $accessToken);
         $stmt->bindValue(':refresh', $refreshToken);
-        return $stmt->execute();
+        if ($stmt->execute() === false) {
+            \Bootstraper::logger()->error(
+                'Failed to add tokens.' . PHP_EOL .
+                'shop id: ' . $shopId . PHP_EOL .
+                'expiration date: ' . $expirationDate . PHP_EOL .
+                'access token: ' . $accessToken . PHP_EOL .
+                'refresh token: ' . $refreshToken
+            );
+            throw new \Exception('Failed to add tokens for shop id: ' . $shopId);
+        }
     }
 }

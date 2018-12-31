@@ -11,8 +11,10 @@ class Index extends \Core\Controller\Controller
         $shopId = $this->_app->shop()->getId();
         $order = Order::getInstance($shopId, $orderId);
         $history = $order->getHistory();
-        $view = $this->_app->getView(['historyEntries' => $history]);
-        $view->render();
+        $historyView = $this->_app->getView();
+        $entryView = $this->_app->getView('Index/History/HistoryEntry');
+
+        $historyView->render(['historyEntries' => $history, 'entryView' => $entryView]);
     }
 
 }

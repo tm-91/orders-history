@@ -70,6 +70,10 @@ abstract class AbstractApp implements AppInterface
                 $controllerName = ucfirst(array_shift($urlElements));
                 $actionName = strtolower(array_shift($urlElements));
         }
+        $this->callControllerAction($controllerName, $actionName, $urlElements);
+    }
+
+    public function callControllerAction($controllerName, $actionName, array $params = null) {
         $controller = '\\' . static::MODULE_NAME . '\\' . static::CONTROLLER_NAMESPACE . '\\' . $controllerName;
         $action = $actionName . 'Action';
 
@@ -82,18 +86,23 @@ abstract class AbstractApp implements AppInterface
             static::logger()->error('Action "' . $actionName . '" not found');
             throw new \Exception('Action "' . $actionName . '" not found');
         }
-
+//
         $this->_calledController = $controllerName;
         $this->_calledAction = $actionName;
 
         $controller = new $controller($this);
-        $success = call_user_func_array(array($controller, $action), $urlElements);
+        $success = call_user_func_array(array($controller, $action), $params);
         if ($success === false) {
             static::logger()->error('Failed to run method "' . $action . '" of class "' . $controller . '"');
             throw new \Exception('Failed to run method "' . $action . '" of class "' . $controller . '"');
         }
-        
-        $this->_calledController = $controllerName;
-        $this->_calledAction = $actionName;
+    }
+
+    public function handleException(\Exception $exception) {
+        static::logger()->error(
+            'Message: ' . $exception->getMessage()  . PHP_EOL .
+            'Code: ' . $exception->getCode() . PHP_EOL .
+            'Stack trace: ' . PHP_EOL . $exception->getTraceAsString()
+        );
     }
 }

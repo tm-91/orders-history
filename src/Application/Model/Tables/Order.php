@@ -5,7 +5,6 @@ namespace Application\Model\Tables;
 
 class Order
 {
-    // todo
     public function getOrderId($shopId, $shopOrderId){
         $stm = \DbHandler::getDb()->prepare('SELECT `id` FROM `orders` WHERE `shop_id`=:shopId AND `shop_order_id`=:shopOrderId;');
         $stm->bindValue(':shopId', $shopId, \PDO::PARAM_INT);
@@ -42,7 +41,10 @@ class Order
         $stm->bindValue(':shopId', $shopId, \PDO::PARAM_INT);
         $stm->bindValue(':shopOrderId', $shopOrderId, \PDO::PARAM_INT);
         $stm->bindValue(':orderCurrentData', json_encode($orderCurrentData), \PDO::PARAM_STR);
-        return $stm->execute();
+        if ($stm->execute() === false){
+            \Bootstraper::logger()->error('insert order failed; order data: ', $orderCurrentData);
+            throw new \Exception('Failed to add order id: ' . $shopOrderId . ' to shop id: ' . $shopId);
+        }
     }
 
 
@@ -50,33 +52,17 @@ class Order
         $stm = \DbHandler::getDb()->prepare('UPDATE TABLE `orders` SET `order_current_data`=:orderCurrentData WHERE `id`=:id');
         $stm->bindValue(':id', $id, \PDO::PARAM_INT);
         $stm->bindValue(':orderCurrentData', json_encode($orderCurrentData), \PDO::PARAM_STR);
-        return $stm->execute();
+        if ($stm->execute() === false){
+            \Bootstraper::logger()->error('update order failed; order data: ', $orderCurrentData);
+            throw new \Exception('Failed to update order id: ' . $id);
+        }
     }
 
     public function removeOrder($id){
         $stm = \DbHandler::getDb()->prepare('DELETE FROM `orders` WHERE `id`=:id;');
         $stm->bindValue(':id', $id, \PDO::PARAM_INT);
-        return $stm->execute();
+        if ($stm->execute() === false){
+            throw new \Exception('Failed to remove order id: ' . $id);
+        }
     }
-
-
-//    const ID = 'id';
-//    const SHOP_ID = 'shop_id';
-//    const SHOP_ORDER_ID =  'shop_order_id';
-
-//    const ORDER_CURRENT_DATA = 'order_current_data';
-//    public function updateCurrentData($id, array $values){
-//        $set = [];
-////        $valuesToSet = [];
-//        foreach ($values as $column => $val){
-//            $set[] = $column . '=:' . $column;
-//        }
-//        $stm = \DbHandler::getDb()->prepare('UPDATE TABLE `orders` SET (`shop_id`, `shop_order_id`, `order_current_data`) WHERE `id`=:id');
-//        $stm->bindValue(':id', $id, \PDO::PARAM_INT);
-//
-//        $stm->bindValue(':orderId', $orderId, \PDO::PARAM_INT);
-//        $stm->bindValue(':orderData', json_encode($data), \PDO::PARAM_STR);
-//        return $stm->execute();
-//    }
-
 }

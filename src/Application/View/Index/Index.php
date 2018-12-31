@@ -59,7 +59,7 @@
                 <div class="history_container">
                     <?php
                     foreach ($historyEntries as $entry){
-                        $view = new \Application\View\View(
+                        /*$view = new \Application\View\View(
                             'Index/History/historyEntry',
                             [
                                 'entry' => $entry,
@@ -67,9 +67,15 @@
                             ],
                             $this->logger()
                         );
-                        $view->render();
+                        $view->render();*/
 //                        require 'History/historyEntry.php';
 //                        echo "</br></br>";
+                        $entryView->render(
+                            [
+                                'entry' => $entry,
+                                'translations' => $translations
+                            ]
+                        );
                     }
                     ?>
                 </div>

@@ -34,13 +34,6 @@ class Shop
 
     protected $_configs;
 
-    /*protected function __construct($shopId, TableShops $shopsTable, TableAccessTokens $accessTokensTable, TableComplexQueries $complexQueriesTable){
-        $this->_id = $shopId;
-        $this->_shopsTable = $shopsTable;
-        $this->_accessTokensTable = $accessTokensTable;
-        $this->_complexQueriesTable = $complexQueriesTable;
-    }*/
-
     public function __construct($shopId){
         $this->_id = $shopId;
         $this->_bootstrap();
@@ -53,45 +46,6 @@ class Shop
         $this->_configs = \Bootstraper::getConfig();
     }
 
-    /*protected function __construct($shopId){
-        $this->_id = $shopId;
-    }*/
-
-    /*public static function installShop($license, $url, $appVersion, TableShops $tableShops) {
-        if ($tableShops->addShop($license, $url, $appVersion)) {
-            return true;
-        }
-        return false;
-    }*/
-
-    /*public static function getInstance(
-        $license,
-        TableShops $tableShops,
-        TableAccessTokens $tableAccessTokens,
-        TableComplexQueries $tableComplexQueries
-    ){
-        if ($id = $tableShops->getShopId($license)) {
-            return new static($id, $tableShops, $tableAccessTokens, $tableComplexQueries);
-        }
-        return false;
-    }*/
-
-    /*public static function getInstance(
-        $license,
-        TableShops $tableShops,
-        TableAccessTokens $tableAccessTokens,
-        TableComplexQueries $tableComplexQueries
-    ){
-        if ($id = $tableShops->getShopId($license)) {
-            $shop = new static($id);
-            $shop->_shopsTable = $tableShops;
-            $shop->_accessTokensTable = $tableAccessTokens;
-            $shop->_complexQueriesTable = $tableComplexQueries;
-            return $shop;
-        }
-        return false;
-    }*/
-
     protected function _getConfig($key = null){
         if ($key !== null) {
             return $this->_configs[$key];
@@ -100,29 +54,11 @@ class Shop
     }
 
     public static function getInstance($license){
-        $l = \Bootstraper::logger();
-        $l->_setScope(['core','model','shop']);
-        $l->debug('am in shop getInstance');
         $tableShops = new \Core\Model\Tables\Shops();
-        $id = false;
-        try {
-            $id = $tableShops->getShopId($license);
-            $l->debug('going to print shop id');
-        } catch (\PDOException $ex) {
-            $l->debug('pdo exception');
-            throw $ex;
-
-        } catch (\Exception $e) {
-            $l->debug('regular exception');
-            throw $e;
+        if ($id = $tableShops->getShopId($license)) {
+            return new self($id);
         }
-        if ($id) {
-            $l->debug('got shop id', [$id]);
-            $shop = new self($id);
-            return $shop;
-        }
-        $l->debug('shop not found');
-        return false;
+        throw new \Exception('Did not found shop with license: ' . $license);
     }
 
     public static function isInstalled($id){
@@ -134,10 +70,6 @@ class Shop
         $tableShops = new \Core\Model\Tables\Shops();
         return $tableShops->select([\Core\Model\Tables\Shops::COLUMN_INSTALLED], [\Core\Model\Tables\Shops::COLUMN_LICENSE => $license]) == 1 ? true : false;
     }
-
-    /*public static function getInstanceById($id){
-        return new static($id);
-    }*/
 
     public function getId(){
         return $this->_id;
@@ -176,7 +108,7 @@ class Shop
             $this->_token = new Tokens($data['access_token'], $data['refresh_token'], $data['expires']);
             return true;
         }
-        return false;
+        throw new \Exception('shop id: ' . $this->getId() . ' is not installed');
     }
 
     /**
@@ -190,13 +122,6 @@ class Shop
         /**
          * @var OAuth $client
          */
-        /*$client = Client::factory(Client::ADAPTER_OAUTH,
-            [
-                'entrypoint' => $this->getUrl(),
-                'client_id' => $appId,
-                'client_secret' => $appSecretKey
-            ]
-        );*/
         $client = Client::factory(Client::ADAPTER_OAUTH,
             [
                 'entrypoint' => $this->getUrl(),
@@ -232,9 +157,6 @@ class Shop
         $expirationDate = date('Y-m-d H:i:s', time() + $tokens['expires_in']);
 
         try {
-            /*
-            $this->_model->updateTokens($tokens['refresh_token'], $tokens['access_token'], $expirationDate, $this->getData('id'));
-            */
             $table = new TableAccessTokens();
             $table->updateTokens(
                 $this->getId(),
@@ -251,10 +173,6 @@ class Shop
         $newToken = new Tokens($tokens['access_token'], $tokens['refresh_token'], $expirationDate);
         $this->_token = $newToken;
         return $this->getToken();
-//        return [
-//            'refresh_token' => $tokens['refresh_token'],
-//            'access_token' => $tokens['access_token']
-//        ];
     }
 
     public function addOrder($orderId, $currentState){
