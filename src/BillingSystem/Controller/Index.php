@@ -90,6 +90,8 @@ class Index extends AbstractController
      */
     public function uninstallAction($arguments)
     {
+        $shop = \Core\Model\Shop::getInstance($arguments['shop']);
+        $shop->removeHistory();
         $this->billing()->uninstall($arguments);
     }
 

@@ -11,6 +11,7 @@ use DreamCommerce\ShopAppstoreLib\Client\OAuth;
 use \Core\Model\Tables\AccessTokens as TableAccessTokens;
 use \Core\Model\Tables\Shops as TableShops;
 use \Core\Model\Tables\Queries as TableComplexQueries;
+use \Application\Model\Tables\Order as TableOrders;
 use \Core\Model\Helper\Tokens;
 
 class Shop
@@ -32,6 +33,11 @@ class Shop
      */
     protected $_complexQueriesTable;
 
+    /**
+     * @var TableOrders
+     */
+    protected $_ordersTable;
+
     protected $_configs;
 
     public function __construct($shopId){
@@ -40,9 +46,10 @@ class Shop
     }
 
     protected function _bootstrap(){
-        $this->_shopsTable = new \Core\Model\Tables\Shops();
-        $this->_accessTokensTable = new \Core\Model\Tables\AccessTokens();
-        $this->_complexQueriesTable = new \Core\Model\Tables\Queries();
+        $this->_shopsTable = new TableShops();
+        $this->_accessTokensTable = new TableAccessTokens();
+        $this->_complexQueriesTable = new TableComplexQueries();
+        $this->_ordersTable = new TableOrders();
         $this->_configs = \Bootstraper::getConfig();
     }
 
@@ -181,5 +188,9 @@ class Shop
 
     public function getOrder($orderId){
         return \Application\Model\Order::getInstance($this->getId(), $orderId);
+    }
+
+    public function removeHistory(){
+        $this->_ordersTable->removeShopOrders($this->getId());
     }
 }

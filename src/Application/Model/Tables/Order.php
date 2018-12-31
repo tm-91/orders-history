@@ -65,4 +65,13 @@ class Order
             throw new \Exception('Failed to remove order id: ' . $id);
         }
     }
+
+    public function removeShopOrders($shopId) {
+        $stmt = \DbHandler::getDb()->prepare('DELETE FROM `orders` WHERE `shop_id`=:shopId;');
+        $stmt->bindValue(':shopId', $shopId, \PDO::PARAM_INT);
+        if ($stmt->execute() === false) {
+            throw new \Exception('Failed to remove all shop id ' . $shopId . ' orders');
+        }
+        return true;
+    }
 }
