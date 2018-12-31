@@ -3,7 +3,7 @@
 		<div class="entry_date entry_column">
 			<?= $entry->getDate('d.m.Y H:i:s'); ?>
 		</div>
-</div>
+	</div>
 	<div class="entry_data_wrapper">
 
 		<?php if ($addedData = $entry->getAddedData()): ?>
