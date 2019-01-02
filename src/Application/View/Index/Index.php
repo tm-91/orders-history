@@ -56,38 +56,44 @@
                 echo 'HISTORIA EDYCJI</br></br>';
                 echo 'ilość wpisów: ' . count($historyEntries);
                 ?>
-                <div class="history_container">
-                    <?php
-                    foreach ($historyEntries as $entry){
-                        /*$view = new \Application\View\View(
-                            'Index/History/historyEntry',
-                            [
-                                'entry' => $entry,
-                                'translations' => $translations
-                            ],
-                            $this->logger()
-                        );
-                        $view->render();*/
-//                        require 'History/historyEntry.php';
-//                        echo "</br></br>";
-                        $entryView->render(
-                            [
-                                'entry' => $entry,
-                                'translations' => $translations
-                            ]
-                        );
-                    }
-                    ?>
+                <div class="history_wrapper">
+                    <div class="history_container">
+                        <?php
+                        foreach ($historyEntries as $entry){
+                            /*$view = new \Application\View\View(
+                                'Index/History/historyEntry',
+                                [
+                                    'entry' => $entry,
+                                    'translations' => $translations
+                                ],
+                                $this->logger()
+                            );
+                            $view->render();*/
+    //                        require 'History/historyEntry.php';
+    //                        echo "</br></br>";
+                            $entryView->render(
+                                [
+                                    'entry' => $entry,
+                                    'translations' => $translations
+                                ]
+                            );
+                        }
+                        ?>
+                    </div>
                 </div>
             </section>
         </main>
         <script src="//cdn.dcsaas.net/js/appstore-sdk.js"></script>
         <style>
+.history_wrapper {
+    overflow: auto;
+    /*height: 80vh;*/
+}
+
 .history_container {
     position: relative;
     display: block;
     padding-left: 70px;
-    overflow-y: auto;
 }
 
 .history_container:before {
@@ -114,14 +120,20 @@
     content: '';
     width: 25px;
     height: 25px;
-    background-color: #617e94;
+    /*background-color: #617e94;*/
+    background-color: #38f689;
     border-radius: 15px;
     border: 5px solid #2c5f88;
     margin: -15px 0 0 -58.5px;
 }
 
+.hide_entry .entry_date_wrapper:before {
+    background-color: #617e94;
+}
+
 .entry_date_wrapper:hover:before {
-    background-color: #38f689;
+    /*background-color: #38f689;*/
+    background-color: #5bb5f9;
 }
 
 .entry_data_wrapper {
@@ -140,7 +152,10 @@
     margin: 5px 5px 5px 0;
 }
 
-.hide_entry {
+/*.hide_entry {
+    display: none;
+}*/
+.hide_entry .entry_data_wrapper {
     display: none;
 }
 
@@ -152,14 +167,14 @@
  });
 });*/
 
-(function(){
+/*(function(){
 var elements = document.querySelectorAll('.entry_data_wrapper');
 for (var i = 0; i < elements.length; i++) {
     elements[i].classList.add('hide_entry');
 }
-}());
+}());*/
 
-document.querySelector('.history_container').addEventListener("mousedown",function(event){
+/*document.querySelector('.history_container').addEventListener("mousedown",function(event){
     var elem = event.target;
     if (elem.classList.contains('entry_date')){
         // var num = elem.attributes.number.value;
@@ -168,6 +183,25 @@ document.querySelector('.history_container').addEventListener("mousedown",functi
         // elemData
 
         elem.offsetParent.nextElementSibling.classList.toggle('hide_entry');
+    }
+}
+);*/
+
+(function(){
+var elements = document.querySelectorAll('.entry_container');
+for (var i = 0; i < elements.length; i++) {
+    elements[i].classList.add('hide_entry');
+}
+}());
+document.querySelector('.history_container').addEventListener("mousedown",function(event){
+    var elem = event.target;
+    if (elem.classList.contains('entry_date')){
+        // var num = elem.attributes.number.value;
+        // var elemData = document.querySelector(' .entry_data_wrapper[number=' + number + '];');
+        // elemData.classList.remove("hide");
+        // elemData
+
+        elem.parentElement.parentElement.classList.toggle('hide_entry');
     }
 }
 );
