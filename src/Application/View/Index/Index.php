@@ -51,7 +51,7 @@
     </head>
     <body>
         <main class="rwd-layout-width rwd-layout-container">
-            <section class="rwd-layout-col-12">
+            <section class="history rwd-layout-col-12">
                 <?php 
                 echo 'HISTORIA EDYCJI</br></br>';
                 echo 'ilość wpisów: ' . count($historyEntries);
@@ -85,9 +85,13 @@
         </main>
         <script src="//cdn.dcsaas.net/js/appstore-sdk.js"></script>
         <style>
-.history_wrapper {
+section.history {
     overflow: auto;
-    /*height: 80vh;*/
+}
+.history_wrapper {
+    /*overflow: auto;*/
+    /*height: 100vh;*/
+    max-height: 650px;
 }
 
 .history_container {
