@@ -88,11 +88,16 @@ class Index extends AbstractController
      * @param array $arguments
      * @throws \Exception
      */
+    /*public function uninstallAction($arguments)
+    {
+        $shop = \Core\Model\Shop::getInstance($arguments['shop']);
+        $shop->removeOrdersAndHistory();
+        $this->billing()->uninstall($arguments);
+    }*/
     public function uninstallAction($arguments)
     {
         $shop = \Core\Model\Shop::getInstance($arguments['shop']);
-        $shop->removeHistory();
-        $this->billing()->uninstall($arguments);
+        $shop->uninstall();
     }
 
     /**

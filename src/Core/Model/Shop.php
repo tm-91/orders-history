@@ -190,7 +190,19 @@ class Shop
         return \Application\Model\Order::getInstance($this->getId(), $orderId);
     }
 
-    public function removeHistory(){
+    public function removeOrdersAndHistory(){
         $this->_ordersTable->removeShopOrders($this->getId());
+    }
+
+    public function uninstall(){
+        $this->removeOrdersAndHistory();
+        $this->_shopsTable->updateShop($this->getId(),[TableShops::COLUMN_INSTALLED => 0]);
+        $this->_accessTokensTable->updateTokens(
+            $this->getId(),
+            [
+                TableAccessTokens::COLUMN_ACCESS_TOKEN => null,
+                TableAccessTokens::COLUMN_REFRESH_TOKEN => null
+            ]
+        );
     }
 }
