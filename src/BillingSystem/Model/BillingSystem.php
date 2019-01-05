@@ -146,7 +146,7 @@ class BillingSystem
         }
     }
 
-    public function upgrade($arguments)
+    /*public function upgrade($arguments)
     {
         try {
             $shopId = $this->_getShopId($arguments['shop']);
@@ -159,7 +159,7 @@ class BillingSystem
         } catch (\Exception $ex) {
             throw $ex;
         }
-    }
+    }*/
 
     /*public function uninstall($arguments)
     {

@@ -205,4 +205,13 @@ class Shop
             ]
         );
     }
+
+    public function upgrade(array $upgradeData){
+        $this->_shopsTable->updateShop(
+            $this->getId(),
+            [
+                TableShops::COLUMN_VERSION => $upgradeData['application_version']
+            ]
+        );
+    }
 }

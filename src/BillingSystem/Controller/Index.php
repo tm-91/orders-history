@@ -1,6 +1,7 @@
 <?php
 namespace BillingSystem\Controller;
 
+use \Core\Model\Shop;
 
 class Index extends AbstractController
 {
@@ -70,9 +71,14 @@ class Index extends AbstractController
      * @param array $arguments
      * @throws \Exception
      */
-    public function upgradeAction($arguments)
+    /*public function upgradeAction($arguments)
     {
         $this->billing()->upgrade($arguments);
+    }*/
+    public function upgradeAction($arguments)
+    {
+        $shop = Shop::getInstance($arguments['shop']);
+        $shop->upgrade($arguments);
     }
 
     /**
@@ -96,7 +102,7 @@ class Index extends AbstractController
     }*/
     public function uninstallAction($arguments)
     {
-        $shop = \Core\Model\Shop::getInstance($arguments['shop']);
+        $shop = Shop::getInstance($arguments['shop']);
         $shop->uninstall();
     }
 
