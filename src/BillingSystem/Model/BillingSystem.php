@@ -161,7 +161,7 @@ class BillingSystem
         }
     }
 
-    public function uninstall($arguments)
+    /*public function uninstall($arguments)
     {
         try {
             $shopId = $this->_getShopId($arguments['shop']);
@@ -181,7 +181,7 @@ class BillingSystem
         } catch (\Exception $ex) {
             throw $ex;
         }
-    }
+    }*/
 
     public function billingSubscription($arguments)
     {
