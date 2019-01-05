@@ -68,14 +68,93 @@ class Shop
         throw new \Exception('Did not found shop with license: ' . $license);
     }
 
+    public static function install($args){
+        $db = \DbHandler::getDb();
+        try {
+//            $tableShops = $this->_shopsTable;
+            $db->beginTransaction();
+
+            $update = false;
+            try {
+//                $shopId = $this->_getShopId($args['shop']);
+                $shop = self::getInstance($args['shop']);
+                $update = true;
+            } catch (\Exception $ex) {
+                // ignore
+            }
+
+            $tableShops = new TableShops();
+            if ($update) {
+                // app is already installed in shop
+                $tableShops->updateShop(
+                    $shop->getId(),
+                    [
+                        TableShops::COLUMN_SHOP_URL => $args['shop_url'],
+                        TableShops::COLUMN_VERSION => $args['application_version'],
+                        TableShops::COLUMN_INSTALLED => 1
+                    ]
+                );
+            } else {
+                // shop installation
+                $tableShops->addShop($args['shop'], $args['shop_url'], $args['application_version']);
+                $shopId = $db->lastInsertId();
+                $shop = new self($shopId);
+            }
+
+            // get OAuth tokens
+            try {
+                /** @var OAuth $c */
+                $c = $args['client'];
+                $c->setAuthCode($args['auth_code']);
+                $tokens = $c->authenticate();
+            } catch (ClientException $ex) {
+                throw new \Exception('Client error', 0, $ex);
+            }
+
+            // store tokens in db
+            $expirationDate = date('Y-m-d H:i:s', time() + $tokens['expires_in']);
+            $tableAccessTokens = new TableAccessTokens();
+            if ($update) {
+                $tableAccessTokens->updateTokens(
+                    $shop->getId(),
+                    [
+                        $tableAccessTokens::COLUMN_EXPIRES_AT => $expirationDate,
+                        $tableAccessTokens::COLUMN_ACCESS_TOKEN => $tokens['access_token'],
+                        $tableAccessTokens::COLUMN_REFRESH_TOKEN => $tokens['refresh_token']
+                    ]
+                );
+            } else {
+                $tableAccessTokens->addToken($shop->getId(), $expirationDate, $tokens['access_token'], $tokens['refresh_token']);
+            }
+            $db->commit();
+            return $shop;
+        } catch (\PDOException $ex) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            throw new \Exception('Database error', 0, $ex);
+        } catch (\Exception $ex) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            throw $ex;
+        }
+    }
+
     public static function isInstalled($id){
         $tableShops = new \Core\Model\Tables\Shops();
-        return $tableShops->select([\Core\Model\Tables\Shops::COLUMN_INSTALLED], [\Core\Model\Tables\Shops::COLUMN_ID => $id]) == 1 ? true : false;
+        return $tableShops->select(
+            [\Core\Model\Tables\Shops::COLUMN_INSTALLED],
+            [\Core\Model\Tables\Shops::COLUMN_ID => $id]
+        ) == 1 ? true : false;
     }
 
     public static function isInstalledByLicense($license) {
         $tableShops = new \Core\Model\Tables\Shops();
-        return $tableShops->select([\Core\Model\Tables\Shops::COLUMN_INSTALLED], [\Core\Model\Tables\Shops::COLUMN_LICENSE => $license]) == 1 ? true : false;
+        return $tableShops->select(
+            [\Core\Model\Tables\Shops::COLUMN_INSTALLED],
+            [\Core\Model\Tables\Shops::COLUMN_LICENSE => $license]
+        ) == 1 ? true : false;
     }
 
     public function getId(){
