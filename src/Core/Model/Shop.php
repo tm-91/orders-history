@@ -2,7 +2,6 @@
 
 namespace Core\Model;
 
-use Core\Model\Tables\CustomQueries;
 use DreamCommerce\ShopAppstoreLib\Client;
 use DreamCommerce\ShopAppstoreLib\Client\Exception\Exception as ClientException;
 use DreamCommerce\ShopAppstoreLib\Exception\HandlerException;
@@ -21,22 +20,22 @@ class Shop
     /**
      * @var TableShops
      */
-    protected $_shopsTable;
+    protected $_tableShops;
 
     /**
      * @var TableAccessTokens
      */
-    protected $_accessTokensTable;
+    protected $_tableAccessTokens;
 
     /**
      * @var TableComplexQueries
      */
-    protected $_complexQueriesTable;
+    protected $_customQueries;
 
     /**
      * @var TableOrders
      */
-    protected $_ordersTable;
+    protected $_tableOrders;
 
     protected $_configs;
 
@@ -46,10 +45,10 @@ class Shop
     }
 
     protected function _bootstrap(){
-        $this->_shopsTable = new TableShops();
-        $this->_accessTokensTable = new TableAccessTokens();
-        $this->_complexQueriesTable = new TableComplexQueries();
-        $this->_ordersTable = new TableOrders();
+        $this->_tableShops = new TableShops();
+        $this->_tableAccessTokens = new TableAccessTokens();
+        $this->_tableOrders = new TableOrders();
+        $this->_customQueries = new TableComplexQueries();
         $this->_configs = \Bootstraper::getConfig();
     }
 
@@ -61,14 +60,13 @@ class Shop
     }
 
     public static function getInstance($license){
-        $tableShops = new \Core\Model\Tables\Shops();
+        $tableShops = new TableShops();
         if ($id = $tableShops->getShopId($license)) {
             return new self($id);
         }
         throw new \Exception('Did not found shop with license: ' . $license);
     }
 
-//    public static function install($args){
     /**
      * @param $license
      * @param $url
@@ -150,18 +148,18 @@ class Shop
     }
 
     public static function isInstalled($id){
-        $tableShops = new \Core\Model\Tables\Shops();
+        $tableShops = new TableShops();
         return $tableShops->select(
-            [\Core\Model\Tables\Shops::COLUMN_INSTALLED],
-            [\Core\Model\Tables\Shops::COLUMN_ID => $id]
+            [TableShops::COLUMN_INSTALLED],
+            [TableShops::COLUMN_ID => $id]
         ) == 1 ? true : false;
     }
 
     public static function isInstalledByLicense($license) {
-        $tableShops = new \Core\Model\Tables\Shops();
+        $tableShops = new TableShops();
         return $tableShops->select(
-            [\Core\Model\Tables\Shops::COLUMN_INSTALLED],
-            [\Core\Model\Tables\Shops::COLUMN_LICENSE => $license]
+            [TableShops::COLUMN_INSTALLED],
+            [TableShops::COLUMN_LICENSE => $license]
         ) == 1 ? true : false;
     }
 
@@ -197,7 +195,7 @@ class Shop
     }
 
     protected function _getInstalledShopData(){
-        if ($data = $this->_complexQueriesTable->getInstalledShopData($this->getId())) {
+        if ($data = $this->_customQueries->getInstalledShopData($this->getId())) {
             $this->_url = $data['url'];
             $this->_token = new Tokens($data['access_token'], $data['refresh_token'], $data['expires']);
             return true;
@@ -278,13 +276,13 @@ class Shop
     }
 
     public function removeOrdersAndHistory(){
-        $this->_ordersTable->removeShopOrders($this->getId());
+        $this->_tableOrders->removeShopOrders($this->getId());
     }
 
     public function uninstall(){
         $this->removeOrdersAndHistory();
-        $this->_shopsTable->updateShop($this->getId(),[TableShops::COLUMN_INSTALLED => 0]);
-        $this->_accessTokensTable->updateTokens(
+        $this->_tableShops->updateShop($this->getId(),[TableShops::COLUMN_INSTALLED => 0]);
+        $this->_tableAccessTokens->updateTokens(
             $this->getId(),
             [
                 TableAccessTokens::COLUMN_ACCESS_TOKEN => null,
@@ -294,7 +292,7 @@ class Shop
     }
 
     public function upgrade(array $upgradeData){
-        $this->_shopsTable->updateShop(
+        $this->_tableShops->updateShop(
             $this->getId(),
             [
                 TableShops::COLUMN_VERSION => $upgradeData['application_version']
