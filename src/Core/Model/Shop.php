@@ -205,8 +205,6 @@ class Shop
 
     /**
      * instantiate client resource
-     * @param $appId
-     * @param $appSecretKey
      * @return Client
      */
     public function instantiateSDKClient()
