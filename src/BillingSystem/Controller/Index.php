@@ -63,7 +63,7 @@ class Index extends AbstractController
      */
     public function billingInstallAction($arguments)
     {
-        $this->billing()->billingInstall($arguments);
+        $this->billing()->billingInstall($arguments['shop']);
     }
 
 	/**
@@ -131,7 +131,7 @@ class Index extends AbstractController
      */
     public function billingSubscriptionAction($arguments)
     {
-        $this->billing()->billingSubscription($arguments);
+        $this->billing()->billingSubscription($arguments['shop'], $arguments['subscription_end_time']);
     }
 
 }
