@@ -91,7 +91,7 @@ section.history {
 .history_wrapper {
     /*overflow: auto;*/
     /*height: 100vh;*/
-    max-height: 650px;
+    min-height: 750px;
 }
 
 .history_container {
