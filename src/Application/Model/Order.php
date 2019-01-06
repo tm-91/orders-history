@@ -1,17 +1,21 @@
 <?php
 namespace Application\Model;
 
+use \Application\Model\Tables\Order as TableOrder;
+use \Application\Model\Tables\OrderHistory as TableOrderHistory;
+use \Application\Model\Helper\OrderHistoryEntry as HistoryEntry;
+
 class Order
 {
 	protected $_id;
 
     /**
-     * @var \Application\Model\Tables\Order
+     * @var TableOrder
      */
 	protected $_tableOrders = false;
 
     /**
-     * @var \Application\Model\Tables\OrderHistory
+     * @var TableOrderHistory
      */
 	protected $_tableOrdersHistory = false;
 
@@ -22,18 +26,18 @@ class Order
 	}
 
 	protected function _bootstrap(){
-        $this->_tableOrders = new \Application\Model\Tables\Order();
-        $this->_tableOrdersHistory = new \Application\Model\Tables\OrderHistory();
+        $this->_tableOrders = new TableOrder();
+        $this->_tableOrdersHistory = new TableOrderHistory();
     }
 
 	public static function addNewOrder($shopId, $orderId, array $currentState){
-        $orderTable = new \Application\Model\Tables\Order();
+        $orderTable = new TableOrder();
         $orderTable->insertOrder($shopId, $orderId, $currentState);
         return \DbHandler::getDb()->lastInsertId();
     }
 
     public static function getInstance($shopId, $orderId) {
-        $orderTable = new \Application\Model\Tables\Order();
+        $orderTable = new TableOrder();
         if ($id = $orderTable->getOrderId($shopId, $orderId)){
             return new self($id);
         }
@@ -69,7 +73,7 @@ class Order
 		return $this->_tableOrdersHistory->getHistory($this->getId());
 	}
 
-	public function insertHistory(\Application\Model\Helper\OrderHistoryEntry $historyEntry){
+	public function insertHistory(HistoryEntry $historyEntry){
         $this->_tableOrdersHistory->insertHistory(
             $this->getId(),
             $historyEntry->getDate(),
@@ -132,7 +136,7 @@ class Order
             $time = new \DateTime();
             $time->setTimestamp($_SERVER['REQUEST_TIME']);
         }
-        $changes = new \Application\Model\Helper\OrderHistoryEntry($this->getId(), $time);
+        $changes = new HistoryEntry($this->getId(), $time);
         if ($currentOrder == false) {
             $changes->setAddedData($data);
         } else {
