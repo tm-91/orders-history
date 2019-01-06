@@ -58,10 +58,6 @@ class App extends \Core\AbstractApp
 
         $this->_webhookData = $this->fetchRequestData();
         $this->_shop = Shop::getInstance($this->getParam('license'));
-        // detect if shop is already installed
-        if (!$this->_shop) {
-            throw new \Exception('shop is not installed! license: ' . $this->getParam('license'));
-        }
     }
 
     /**

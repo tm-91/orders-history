@@ -7,10 +7,20 @@ class Index extends \Core\Controller\Controller
 {
     public function indexAction(){
         $data = $this->_app->getWebhookData();
-        $order = Order::getInstance($this->_app->shop()->getId(), $data['order_id']);
-        $changes = $order->geDiff($data);
-        $order->insertHistory($changes);
-        $order->updateCurrentData($data);
+        $order = false;
+        try {
+            $order = Order::getInstance($this->_app->shop()->getId(), $data['order_id']);
+        } catch (\Exception $ex) {
+            // ignore exception
+        }
+
+        if ($order === false) {
+            Order::addNewOrder($this->_app->shop()->getId(), $data['order_id'], $data);
+        } else {
+            $changes = $order->geDiff($data);
+            $order->insertHistory($changes);
+            $order->updateCurrentData($data);
+        }    
     }
 
     public function neworderAction(){
