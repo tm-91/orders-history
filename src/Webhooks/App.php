@@ -56,7 +56,7 @@ class App extends \Core\AbstractApp
         // checks request
         $this->validateWebhook();
 
-        $this->_webhookData = $this->fetchRequestData();
+        $this->_webhookData = $this->getResponseData();
         $this->_shop = Shop::getInstance($this->getParam('license'));
     }
 
@@ -78,7 +78,10 @@ class App extends \Core\AbstractApp
         }
     }
 
-    public function getParam($param){
+    public function getParam($param = null){
+        if ($param === null) {
+            return $this->params;
+        }
         if (array_key_exists($param, $this->params)) {
             return $this->params[$param];
         } else {
@@ -99,14 +102,6 @@ class App extends \Core\AbstractApp
     public function getWebhookData(){
         return $this->_webhookData;
     }
-
-    public function fetchRequestData($getRaw = false){
-        $data = file_get_contents("php://input");
-        if (!$getRaw) {
-            $data = json_decode($data, true);
-        }
-        return $data;
-    }
     
     /**
      * checks variables and hash
@@ -118,7 +113,7 @@ class App extends \Core\AbstractApp
     public function validateWebhook()
     {
         $secretKey = hash_hmac('sha512', $this->getParam('license') . ":" . self::getConfig('webhookSecretKey'), self::getConfig('appstoreSecret'));
-        $sha1 = sha1($this->getParam('id') . ':' . $secretKey . ':' . $this->fetchRequestData(true));
+        $sha1 = sha1($this->getParam('id') . ':' . $secretKey . ':' . $this->getResponseData(true));
 
         if ($sha1 != $this->getParam('sha1')) {
             self::logger()->error('Webhook validation failed. bad checksum: ' . $sha1);

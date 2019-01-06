@@ -105,4 +105,12 @@ abstract class AbstractApp implements AppInterface
             'Stack trace: ' . PHP_EOL . $exception->getTraceAsString()
         );
     }
+
+    public function getResponseData($getRaw = false){
+        $data = file_get_contents("php://input");
+        if (!$getRaw) {
+            $data = json_decode($data, true);
+        }
+        return $data;
+    }
 }

@@ -4,14 +4,13 @@ namespace Core\Model;
 
 use DreamCommerce\ShopAppstoreLib\Client;
 use DreamCommerce\ShopAppstoreLib\Client\Exception\Exception as ClientException;
-use DreamCommerce\ShopAppstoreLib\Exception\HandlerException;
-use DreamCommerce\ShopAppstoreLib\Handler;
 use DreamCommerce\ShopAppstoreLib\Client\OAuth;
 use \Core\Model\Tables\AccessTokens as TableAccessTokens;
 use \Core\Model\Tables\Shops as TableShops;
 use \Core\Model\Tables\Queries as TableComplexQueries;
 use \Application\Model\Tables\Order as TableOrders;
 use \Core\Model\Helper\Tokens;
+use \Application\Model\Order;
 
 class Shop
 {
@@ -265,20 +264,33 @@ class Shop
         return $this->getToken();
     }
 
+    /**
+     * @param $orderId
+     * @param $currentState
+     * @return string added order id
+     */
     public function addOrder($orderId, $currentState){
-        return $id = \Application\Model\Order::addNewOrder($this->getId(), $orderId, $currentState);
+        return $id = Order::addNewOrder($this->getId(), $orderId, $currentState);
     }
 
+    /**
+     * @param $orderId
+     * @return Order
+     */
     public function getOrder($orderId){
-        return \Application\Model\Order::getInstance($this->getId(), $orderId);
+        return Order::getInstance($this->getId(), $orderId);
     }
 
-    public function removeOrdersAndHistory(){
+    public function removeOrderAndHistory($orderId){
+        $this->getOrder($orderId)->removeOrder();
+    }
+
+    public function removeAllOrdersAndHistory(){
         $this->_tableOrders->removeShopOrders($this->getId());
     }
 
     public function uninstall(){
-        $this->removeOrdersAndHistory();
+        $this->removeAllOrdersAndHistory();
         $this->_tableShops->updateShop($this->getId(),[TableShops::COLUMN_INSTALLED => 0]);
         $this->_tableAccessTokens->updateTokens(
             $this->getId(),

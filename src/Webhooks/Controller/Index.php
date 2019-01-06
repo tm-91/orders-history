@@ -9,13 +9,15 @@ class Index extends \Core\Controller\Controller
         $data = $this->_app->getWebhookData();
         $order = false;
         try {
-            $order = Order::getInstance($this->_app->shop()->getId(), $data['order_id']);
+//            $order = Order::getInstance($this->_app->shop()->getId(), $data['order_id']);
+            $order = $this->_app->shop()->getOrder($data['order_id']);
         } catch (\Exception $ex) {
             // ignore exception
         }
 
         if ($order === false) {
-            Order::addNewOrder($this->_app->shop()->getId(), $data['order_id'], $data);
+//            Order::addNewOrder($this->_app->shop()->getId(), $data['order_id'], $data);
+            $this->_app->shop()->addOrder($data['order_id'], $data);
         } else {
             $changes = $order->geDiff($data);
             $order->insertHistory($changes);
@@ -25,16 +27,18 @@ class Index extends \Core\Controller\Controller
 
     public function neworderAction(){
         $data = $this->_app->getWebhookData();
-        Order::addNewOrder(
-            $this->_app->shop()->getId(),
-            $data['order_id'],
-            $data
-        );
+//        Order::addNewOrder(
+//            $this->_app->shop()->getId(),
+//            $data['order_id'],
+//            $data
+//        );
+        $this->_app->shop()->addOrder($data['order_id'], $data);
     }
 
     public function removeorderAction(){
         $data = $this->_app->getWebhookData();
-        $order = Order::getInstance($this->_app->shop()->getId(), $data['order_id']);
-        $order->removeOrder();
+//        $order = Order::getInstance($this->_app->shop()->getId(), $data['order_id']);
+//        $order->removeOrder();
+        $this->_app->shop()->removeOrderAndHistory($data['order_id']);
     }
 }
