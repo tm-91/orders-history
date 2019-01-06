@@ -68,16 +68,24 @@ class Shop
         throw new \Exception('Did not found shop with license: ' . $license);
     }
 
-    public static function install($args){
+//    public static function install($args){
+    /**
+     * @param $license
+     * @param $url
+     * @param $applicationVersion
+     * @param $client
+     * @param $authCode
+     * @return Shop
+     * @throws \Exception
+     */
+    public static function install($license, $url, $applicationVersion, $client, $authCode){
         $db = \DbHandler::getDb();
         try {
-//            $tableShops = $this->_shopsTable;
             $db->beginTransaction();
 
             $update = false;
             try {
-//                $shopId = $this->_getShopId($args['shop']);
-                $shop = self::getInstance($args['shop']);
+                $shop = self::getInstance($license);
                 $update = true;
             } catch (\Exception $ex) {
                 // ignore
@@ -89,14 +97,14 @@ class Shop
                 $tableShops->updateShop(
                     $shop->getId(),
                     [
-                        TableShops::COLUMN_SHOP_URL => $args['shop_url'],
-                        TableShops::COLUMN_VERSION => $args['application_version'],
+                        TableShops::COLUMN_SHOP_URL => $url,
+                        TableShops::COLUMN_VERSION => $applicationVersion,
                         TableShops::COLUMN_INSTALLED => 1
                     ]
                 );
             } else {
                 // shop installation
-                $tableShops->addShop($args['shop'], $args['shop_url'], $args['application_version']);
+                $tableShops->addShop($license, $url, $applicationVersion);
                 $shopId = $db->lastInsertId();
                 $shop = new self($shopId);
             }
@@ -104,8 +112,8 @@ class Shop
             // get OAuth tokens
             try {
                 /** @var OAuth $c */
-                $c = $args['client'];
-                $c->setAuthCode($args['auth_code']);
+                $c = $client;
+                $c->setAuthCode($authCode);
                 $tokens = $c->authenticate();
             } catch (ClientException $ex) {
                 throw new \Exception('Client error', 0, $ex);

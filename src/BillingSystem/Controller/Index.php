@@ -25,7 +25,13 @@ class Index extends AbstractController
 //        $this->billing()->installShop($arguments);
 //        $this->_getShopOrders(\Core\Model\Shop::getInstance($arguments['shop']));
 
-        $shop = Shop::install($arguments);
+        Shop::install(
+            $arguments['shop'],
+            $arguments['shop_url'],
+            $arguments['application_version'],
+            $arguments['client'],
+            $arguments['auth_code']
+        );
 //        $this->_getShopOrders($shop);
     }
 
