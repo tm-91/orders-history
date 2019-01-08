@@ -9,9 +9,7 @@ class App extends \Core\AbstractApp
 {
 
     /**
-     * @var array sended data
-     * 
-     * OK
+     * @var array data that has been sent
      * 
      */
     public $_webhookData = false;
@@ -21,14 +19,6 @@ class App extends \Core\AbstractApp
     *
     */
     public $_headers = array();
-    
-    /**
-     * @var array params from headers
-     * 
-     * OK
-     * 
-     */
-    public $params = array();
 
     /**
      * @var Shop
@@ -46,13 +36,20 @@ class App extends \Core\AbstractApp
         parent::bootstrap();
 
         $this->_headers = $this->getWebhookHeaders();
-        $this->setParams([
+//        $this->setParams([
+//            'id'        => $this->_headers['X-Webhook-Id'],
+//            'name'      => $this->_headers['X-Webhook-Name'],
+//            'shop'      => $this->_headers['X-Shop-Domain'],
+//            'license'   => $this->_headers['X-Shop-License'],
+//            'sha1'      => $this->_headers['X-Webhook-Sha1']
+//        ]);
+        $this->_params = [
             'id'        => $this->_headers['X-Webhook-Id'],
             'name'      => $this->_headers['X-Webhook-Name'],
             'shop'      => $this->_headers['X-Shop-Domain'],
             'license'   => $this->_headers['X-Shop-License'],
             'sha1'      => $this->_headers['X-Webhook-Sha1']
-        ]);
+        ];
         // checks request
         $this->validateWebhook();
 
@@ -72,32 +69,32 @@ class App extends \Core\AbstractApp
         $this->dispatch($pathArray['query']);
     }
     
-    public function setParams(array $paramsArray){
-        foreach ($paramsArray as $parameter => $value) {
-            $this->params[$parameter] = $value;
-        }
-    }
+//    public function setParams(array $paramsArray){
+//        foreach ($paramsArray as $parameter => $value) {
+//            $this->params[$parameter] = $value;
+//        }
+//    }
 
-    public function getParam($param = null){
-        if ($param === null) {
-            return $this->params;
-        }
-        if (array_key_exists($param, $this->params)) {
-            return $this->params[$param];
-        } else {
-            throw new \Exception('Webhook App param "' . $param . '" does not exists');
-        }
-    }
+//    public function getParam($param = null){
+//        if ($param === null) {
+//            return $this->params;
+//        }
+//        if (array_key_exists($param, $this->params)) {
+//            return $this->params[$param];
+//        } else {
+//            throw new \Exception('Webhook App param "' . $param . '" does not exists');
+//        }
+//    }
 
-    public function removeParams(array $paramsArray){
-        foreach ($paramsArray as $parameter) {
-            if (array_key_exists($parameter, $this->params)){
-                unset($this->params[$parameter]);
-            } else {
-                throw new \Exception('Webhook App param "' . $parameter . '" that you are trying to remove does not exists');
-            }
-        }   
-    }
+//    public function removeParams(array $paramsArray){
+//        foreach ($paramsArray as $parameter) {
+//            if (array_key_exists($parameter, $this->params)){
+//                unset($this->params[$parameter]);
+//            } else {
+//                throw new \Exception('Webhook App param "' . $parameter . '" that you are trying to remove does not exists');
+//            }
+//        }
+//    }
 
     public function getWebhookData(){
         return $this->_webhookData;
@@ -116,8 +113,7 @@ class App extends \Core\AbstractApp
         $sha1 = sha1($this->getParam('id') . ':' . $secretKey . ':' . $this->getResponseData(true));
 
         if ($sha1 != $this->getParam('sha1')) {
-            self::logger()->error('Webhook validation failed. bad checksum: ' . $sha1);
-            exit();
+            throw new \Exception('Webhook validation failed. bad checksum: ' . $sha1);
         }
         return true;
     }
@@ -143,22 +139,22 @@ class App extends \Core\AbstractApp
         return $headers;
     }
 
-    /**
-     * @return bool
-     */
-    public function getDebug(){
-        return self::getConfig('debug');
-    }
+//    /**
+//     * @return bool
+//     */
+//    public function getDebug(){
+//        return self::getConfig('debug');
+//    }
 
-    /**
-     * @return string
-     */
-    public function getShopDataToDebug(){
-        $shopData = 'URL: ' . $this->params['shop'] . ' LICENSE: ' . $this->params['license'];
-        return $shopData;
-    }
-
-    public static function escapeHtml($message){
-        return htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
-    }
+//    /**
+//     * @return string
+//     */
+//    public function getShopDataToDebug(){
+//        $shopData = 'URL: ' . $this->params['shop'] . ' LICENSE: ' . $this->params['license'];
+//        return $shopData;
+//    }
+//
+//    public static function escapeHtml($message){
+//        return htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
+//    }
 }

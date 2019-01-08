@@ -23,6 +23,8 @@ abstract class AbstractApp implements AppInterface
      */
     protected $_logger = false;
 
+    protected $_params = [];
+
     public function bootstrap(){
         $logger = new \Logger(static::getConfig());
         $logger->_setScope([static::MODULE_NAME]);
@@ -108,5 +110,21 @@ abstract class AbstractApp implements AppInterface
             $data = json_decode($data, true);
         }
         return $data;
+    }
+
+    public function getParam($param = null, $triggerException = true)
+    {
+        if ($param === null) {
+            return $this->_params;
+        }
+        if (isset($this->_params[$param])) {
+            return $this->_params[$param];
+        } else {
+            if ($triggerException) {
+                throw new \Exception('Request parameter "' . $param . '" is not set');
+            } else {
+                return null;
+            }
+        }
     }
 }

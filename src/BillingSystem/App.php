@@ -2,12 +2,8 @@
 
 namespace BillingSystem;
 
-use DreamCommerce\ShopAppstoreLib\Client;
-use DreamCommerce\ShopAppstoreLib\Client\Exception\Exception as ClientException;
 use DreamCommerce\ShopAppstoreLib\Exception\HandlerException;
 use DreamCommerce\ShopAppstoreLib\Handler;
-use DreamCommerce\ShopAppstoreLib\Client\OAuth;
-use DreamCommerce\ShopAppstoreLib\Logger;
 
 class App extends \Core\AbstractApp
 {

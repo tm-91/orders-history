@@ -73,21 +73,21 @@ class App extends \Core\AbstractApp
         return $this->_shop;
     }
 
-    public function getParam($param = null, $triggerException = true)
-    {
-        if ($param === null) {
-            return $this->_params;
-        }
-        if (isset($this->_params[$param])) {
-            return $this->_params[$param];
-        } else {
-            if ($triggerException) {
-                throw new \Exception('Request parameter "' . $param . '" is not set');
-            } else {
-                return null;
-            }
-        }
-    }
+//    public function getParam($param = null, $triggerException = true)
+//    {
+//        if ($param === null) {
+//            return $this->_params;
+//        }
+//        if (isset($this->_params[$param])) {
+//            return $this->_params[$param];
+//        } else {
+//            if ($triggerException) {
+//                throw new \Exception('Request parameter "' . $param . '" is not set');
+//            } else {
+//                return null;
+//            }
+//        }
+//    }
 
     /**
      * get client resource
@@ -117,11 +117,6 @@ class App extends \Core\AbstractApp
      */
     public function validateRequest()
     {
-//        if (!array_key_exists('locale', $_GET) || empty($_GET['locale'])) {
-//            throw new \Exception('Invalid request. locale parameter has not been provided');
-//        }
-//        setlocale(LC_ALL, basename($_GET['locale']));
-
         if ($locale = $this->getParam('locale', false)) {
             setlocale(LC_ALL, basename($locale));
         } else {
@@ -152,11 +147,6 @@ class App extends \Core\AbstractApp
             throw new \Exception('Invalid request');
         }
     }
-
-//    public static function escapeHtml($message)
-//    {
-//        return htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
-//    }
 
     public static function getUrl($url)
     {
