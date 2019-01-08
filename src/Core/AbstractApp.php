@@ -50,7 +50,6 @@ abstract class AbstractApp implements AppInterface
     public function dispatch(array $urlElements = null)
     {
         if (is_null($urlElements)){
-            static::logger()->error('invalid argument passed to dispatch method');
             throw new \Exception('invalid argument passed to dispatcher method');
         }
         $controller = false;
@@ -78,12 +77,10 @@ abstract class AbstractApp implements AppInterface
         $action = $actionName . 'Action';
 
         if (!class_exists($controller)) {
-            static::logger()->error('Controller name "' . $controller . '" not found');
             throw new \Exception('Controller "' . $controller . '" not found');
         }
 
         if (!is_callable(array($controller, $action))) {
-            static::logger()->error('Action "' . $actionName . '" not found');
             throw new \Exception('Action "' . $actionName . '" not found');
         }
 //
@@ -93,7 +90,6 @@ abstract class AbstractApp implements AppInterface
         $controller = new $controller($this);
         $success = call_user_func_array(array($controller, $action), $params);
         if ($success === false) {
-            static::logger()->error('Failed to run method "' . $action . '" of class "' . $controller . '"');
             throw new \Exception('Failed to run method "' . $action . '" of class "' . $controller . '"');
         }
     }

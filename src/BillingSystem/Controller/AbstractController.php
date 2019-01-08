@@ -21,10 +21,7 @@ class AbstractController
     }
 
     protected function _bootstrap(){
-        $this->_billingSystem = new \BillingSystem\Model\BillingSystem(
-            new \Core\Model\Tables\Billings(),
-            new \Core\Model\Tables\Subscriptions()
-        );
+        $this->_billingSystem = new \BillingSystem\Model\BillingSystem();
     }
 
     /**

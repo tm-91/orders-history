@@ -25,12 +25,13 @@ class BillingSystem
      */
     protected $_tableSubscriptions = false;
 
-    public function __construct(
-        TableBillings $tableBillings,
-        TableSubscriptions $tableSubscriptions
-    ) {
-        $this->_tableSubscriptions = $tableSubscriptions;
-        $this->_tableBillings = $tableBillings;
+    public function __construct(){
+        $this->bootstrap();
+    }
+
+    protected function bootstrap(){
+        $this->_tableSubscriptions = new TableBillings();
+        $this->_tableBillings = new TableSubscriptions();
     }
 
 //    public function installShop($args){

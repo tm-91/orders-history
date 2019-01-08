@@ -33,8 +33,7 @@ class Order
      * @param $shopId
      * @param $shopOrderId
      * @param array $orderCurrentData
-     * @return bool
-     * @internal param array $data
+     * @throws \Exception
      */
     public function insertOrder($shopId, $shopOrderId, array $orderCurrentData){
         $stm = \DbHandler::getDb()->prepare('INSERT INTO `orders` (`shop_id`, `shop_order_id`, `order_current_data`) VALUES (:shopId, :shopOrderId, :orderCurrentData) ON DUPLICATE KEY UPDATE order_current_data=VALUES(order_current_data)');

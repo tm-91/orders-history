@@ -73,15 +73,19 @@ class App extends \Core\AbstractApp
         return $this->_shop;
     }
 
-    public function getParam($param = null)
+    public function getParam($param = null, $triggerException = true)
     {
-        if (is_null($param)) {
+        if ($param === null) {
             return $this->_params;
         }
         if (isset($this->_params[$param])) {
             return $this->_params[$param];
         } else {
-            throw new \Exception('Parameter "' . $param . '" is not set');
+            if ($triggerException) {
+                throw new \Exception('Request parameter "' . $param . '" is not set');
+            } else {
+                return null;
+            }
         }
     }
 
@@ -113,17 +117,19 @@ class App extends \Core\AbstractApp
      */
     public function validateRequest()
     {
-        // todo
-        if (empty($_GET['locale'])) {
-            die();
+//        if (!array_key_exists('locale', $_GET) || empty($_GET['locale'])) {
+//            throw new \Exception('Invalid request. locale parameter has not been provided');
+//        }
+//        setlocale(LC_ALL, basename($_GET['locale']));
+
+        if ($locale = $this->getParam('locale', false)) {
+            setlocale(LC_ALL, basename($locale));
+        } else {
+            throw new \Exception('Invalid request. "locale" parameter has not been provided');
         }
-        setlocale(LC_ALL, basename($_GET['locale']));
 
-
-
-
-        if (empty($this->getParam('translations'))) {
-            throw new \Exception('Invalid request');
+        if ($this->getParam('translations', false) === null) {
+            throw new \Exception('Invalid request. "translations" parameter has not been provided');
         }
 
         $params = array(
@@ -147,10 +153,10 @@ class App extends \Core\AbstractApp
         }
     }
 
-    public static function escapeHtml($message)
-    {
-        return htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
-    }
+//    public static function escapeHtml($message)
+//    {
+//        return htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
+//    }
 
     public static function getUrl($url)
     {

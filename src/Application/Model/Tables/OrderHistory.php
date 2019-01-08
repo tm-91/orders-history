@@ -42,11 +42,12 @@ class OrderHistory
 
     /**
      * @param $orderId
-     * @param $date
+     * @param \DateTime $date
      * @param array|null $added
      * @param array|null $edited
      * @param array|null $removed
-     * @return bool|int
+     * @return int
+     * @throws \Exception
      */
     public function insertHistory($orderId, \DateTime $date, array $added = null, array $edited = null, array $removed = null){
         $columns = [];
@@ -83,7 +84,7 @@ class OrderHistory
 
     /**
      * @param $orderId
-     * @return bool
+     * @throws \Exception
      */
     public function removeOrderHistory($orderId){
         $stm = \DbHandler::getDb()->prepare('DELETE FROM `orders_history` WHERE `order_id`=:orderId;');
