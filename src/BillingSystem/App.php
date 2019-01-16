@@ -59,9 +59,4 @@ class App extends \Core\AbstractApp
         $this->bootstrap();
         $this->dispatch();
     }
-
-    public static function getConfig($name = false){
-        return \Bootstraper::getConfig($name);
-    }
-
 }
