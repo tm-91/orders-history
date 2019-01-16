@@ -48,7 +48,7 @@ class Order
 
 
     public function updateCurrentData($id, array $orderCurrentData){
-        $stm = \DbHandler::getDb()->prepare('UPDATE TABLE `orders` SET `order_current_data`=:orderCurrentData WHERE `id`=:id');
+        $stm = \DbHandler::getDb()->prepare('UPDATE `orders` SET `order_current_data`=:orderCurrentData WHERE `id`=:id;');
         $stm->bindValue(':id', $id, \PDO::PARAM_INT);
         $stm->bindValue(':orderCurrentData', json_encode($orderCurrentData), \PDO::PARAM_STR);
         if ($stm->execute() === false){

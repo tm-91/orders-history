@@ -25,17 +25,17 @@ class Index extends AbstractController
 //        $this->billing()->installShop($arguments);
 //        $this->_getShopOrders(\Core\Model\Shop::getInstance($arguments['shop']));
 
-        Shop::install(
+        $shop = Shop::install(
             $arguments['shop'],
             $arguments['shop_url'],
             $arguments['application_version'],
             $arguments['client'],
             $arguments['auth_code']
         );
-//        $this->_getShopOrders($shop);
+        $this->_fetchAndAddShopOrders($shop);
     }
 
-    protected function _getShopOrders(\Core\Model\Shop $shop){
+    protected function _fetchAndAddShopOrders(\Core\Model\Shop $shop){
         $orderResource = new \DreamCommerce\ShopAppstoreLib\Resource\Order($shop->instantiateSDKClient());
         $pageCount = 1;
         do {

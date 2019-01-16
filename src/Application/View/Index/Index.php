@@ -85,13 +85,10 @@
         </main>
         <script src="//cdn.dcsaas.net/js/appstore-sdk.js"></script>
         <style>
-section.history {
-    overflow: auto;
-}
 .history_wrapper {
-    /*overflow: auto;*/
+    overflow: auto;
     /*height: 100vh;*/
-    min-height: 750px;
+    height: 600px;
 }
 
 .history_container {
