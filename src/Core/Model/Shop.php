@@ -132,6 +132,7 @@ class Shop
                 $tableAccessTokens->addToken($shop->getId(), $expirationDate, $tokens['access_token'], $tokens['refresh_token']);
             }
             $db->commit();
+            \Bootstraper::logger()->debug('Installed shop id: ' . $shop->getId());
             return $shop;
         } catch (\PDOException $ex) {
             if ($db->inTransaction()) {

@@ -16,6 +16,7 @@ class App extends \Core\AbstractApp
     const MODULE_NAME = 'BillingSystem';
 
     public function bootstrap(){
+        parent::bootstrap();
         if (empty($_POST['shop_url']) || empty($_POST['action'])) {
             die;
         }
@@ -25,7 +26,7 @@ class App extends \Core\AbstractApp
                 $_POST['shop_url'], self::getConfig('appId'), self::getConfig('appSecret'), self::getConfig('appstoreSecret')
             );
             // subscribe to particular events
-            $controller = new \BillingSystem\Controller\Index();
+            $controller = new \BillingSystem\Controller\Index($this);
             $handler->subscribe('install', array($controller, 'installAction'));
             $handler->subscribe('upgrade', array($controller, 'upgradeAction'));
             $handler->subscribe('billing_install', array($controller, 'billingInstallAction'));

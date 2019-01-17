@@ -16,7 +16,12 @@ class AbstractController
      */
     private $_billingSystem = null;
 
-    public function __construct(){
+    /**
+     * @var \BillingSystem\App
+     */
+    protected $app;
+
+    public function __construct($app){
         $this->_bootstrap();
     }
 

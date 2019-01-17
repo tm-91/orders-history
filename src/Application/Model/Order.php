@@ -33,7 +33,9 @@ class Order
 	public static function addNewOrder($shopId, $orderId, array $currentState){
         $orderTable = new TableOrder();
         $orderTable->insertOrder($shopId, $orderId, $currentState);
-        return \DbHandler::getDb()->lastInsertId();
+        $id = \DbHandler::getDb()->lastInsertId();
+        \Bootstraper::logger()->debug('Created new order id ' . $id . ' (shop id ' . $orderId . ') in shop id ' . $shopId);
+        return $id;
     }
 
     public static function getInstance($shopId, $orderId) {
@@ -91,96 +93,79 @@ class Order
      */
     public function geDiff(array $data, $time = null, $includeAdditionalFields = false)
     {
-        /*$findEditedAndRemoved = function ($compareAgainst, $data) use (&$findEditedAndRemoved) {
-            $outcome = [
-                'e'=>[],
-                'r'=>[]
-            ];
-            foreach ($compareAgainst as $key1 => $val1) {
-                if (array_key_exists($key1, $data)) {
-                    if (is_array($val1)) {
-                        $out = $findEditedAndRemoved($val1, $data[$key1]);
-                        if ($out['e']){
-                            $outcome['e'][$key1] = $out['e'];
-                        }
-                        if ($out['r']){
-                            $outcome['r'][$key1] = $out['r'];
-                        }
-                    } else {
-                        if ($val1 !== $data[$key1]) {
-                            $outcome['e'][$key1] = $data[$key1];
-                        }
-                    }
-                } else {
-                    $outcome['r'][$key1] = $val1;
-                }
-            }
-            return $outcome;
-        };
-
-        $findEditedAndRemoved = function ($base, $toCompare) use (&$findEditedAndRemoved) {
-            $outcome = [
-                'e'=>[],
-                'r'=>[]
-            ];
-            foreach ($toCompare as $key => $val) {
-//                if (array_key_exists($key1, $data)) {
-                    if (is_array($val)) {
-                        $out = $findEditedAndRemoved($val, $toCompare[$key]);
-                        if ($out['e']){
-                            $outcome['e'][$key] = $out['e'];
-                        }
-                        if ($out['r']){
-                            $outcome['r'][$key] = $out['r'];
-                        }
-                    } else {
-                        if ($base[$key] !== $val) {
-                            $outcome[$key] = $val;
-                        }
-                    }
-//                } else {
-//                    $outcome['r'][$key1] = $val1;
-//                }
-            }
-            return $outcome;
-        };
-
-        $findAdded = function ($compareAgainst, $data) use (&$findAdded) {
-            $outcome = [];
-            foreach ($data as $key2 => $val2) {
-                if (!key_exists($key2, $compareAgainst)) {
-                    $outcome[$key2] = $val2;
-                } elseif (is_array($val2)) {
-                    if ($out = $findAdded($compareAgainst[$key2], $val2)) {
-                        $outcome[$key2] = $out;
-                    }
-                }
-            }
-            return $outcome;
-        };
-
-        $currentOrder = $this->getCurrentData();
-        if ($time === null) {
-            $time = new \DateTime();
-            $time->setTimestamp($_SERVER['REQUEST_TIME']);
-        }
-        $changes = new HistoryEntry($this->getId(), $time);
-        if ($currentOrder == false) {
-            $changes->setAddedData($data);
-        } else {
-            $extractedData = $findEditedAndRemoved($currentOrder, $data);
-            $changes->setEditedData($extractedData['e']);
-            $changes->setRemovedData($extractedData['r']);
-            $changes->setAddedData($findAdded($currentOrder, $data));
-        }
-        return $changes;*/
-
         $isAssoc = function (array $arr)
         {
             return array_keys($arr) !== range(0, count($arr) - 1);
         };
 
-        $findRemovedArray = function (array $base, array $compare) {
+        $findDiff = function ($base, $compare, $includeAddedFields = false) use ($isAssoc, &$findDiff) {
+            $outcome = [
+                'R' => [],
+                'A' => [],
+                'E' => []
+            ];
+            foreach ($base as $key => $value) {
+                if (array_key_exists($key, $compare)) {
+                    if (is_array($value)) {
+                        $valueCompare = $compare[$key];
+                        if ($isAssoc($valueCompare) || $isAssoc($value)) {
+                            $d = $findDiff($value, $valueCompare);
+                            foreach ($d as $type => $delta) {
+                                if ($delta) {
+                                    $outcome[$type] = [$key => $delta];
+                                }
+                            }
+                        } else {
+                            if ($status = (count($valueCompare) - count($value))) {
+                                if ($status < 0) {
+                                    $baseSubArray = $value;
+                                    $compareSubArray = $valueCompare;
+                                    $type = 'R';
+                                } else {
+                                    $baseSubArray = $valueCompare;
+                                    $compareSubArray = $value;
+                                    $type = 'A';
+                                }
+                                foreach ($baseSubArray as $baseSubKey => $baseSubVal) {
+                                    $exists = false;
+                                    foreach ($compareSubArray as $valueSubArray) {
+                                        $d2 = $findDiff($baseSubVal, $valueSubArray);
+                                        if (empty($d2['R']) && empty($d2['A']) && empty($d2['E'])) {
+                                            $exists = true;
+                                            break;
+                                        }
+                                    }
+                                    if ($exists == false) {
+                                        $outcome[$type][$key][$baseSubKey] = $baseSubVal;
+                                    }
+                                }
+                            } else {
+                                foreach ($value as $baseSubKey => $baseSubVal) {
+                                    $d3 = $findDiff($baseSubVal, $valueCompare[$baseSubKey]);
+                                    foreach ($d3 as $type => $delta) {
+                                        if ($delta) {
+                                            $outcome[$type] = [$key => [$baseSubKey => $delta]];
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        if ($value !== $compare[$key]) {
+                            $outcome['E'][$key] = $compare[$key];
+                        }
+                    }
+                } else {
+//                    echo "key \"$key\" does not exists in comparing array\n";
+                    if ($includeAddedFields) {
+                        $outcome['R'][$key] = $value;
+                    }
+                }
+            }
+            return $outcome;
+        };
+
+        /*$findRemovedArray = function (array $base, array $compare) {
             $outcome = [];
             foreach ($base as $arbKey => $arrBase) {
                 $removed = true;
@@ -255,7 +240,7 @@ class Order
                 }
             }
             return $outcome;
-        };
+        };*/
 
         $currentOrder = $this->getCurrentData();
         if ($time === null) {
