@@ -8,8 +8,9 @@ class Index extends \Core\Controller\Controller
     public function indexAction(){
         $data = $this->_app->getResponseData();
         $log = $this->_app->logger();
-        $log->_addScope(['controller','indexAction']);
-        $log->debug('response data:', $data);
+//        $log->_addScope(['controller','indexAction']);
+//        $log->debug('received order edit webhook');
+//        $log->debug('response data:', $data);
         $order = false;
         try {
 //            $order = Order::getInstance($this->_app->shop()->getId(), $data['order_id']);

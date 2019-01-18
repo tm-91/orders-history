@@ -73,6 +73,22 @@ class App extends \Core\AbstractApp
         return $this->_shop;
     }
 
+//    public function getParam($param = null, $triggerException = true)
+//    {
+//        if ($param === null) {
+//            return $this->_params;
+//        }
+//        if (isset($this->_params[$param])) {
+//            return $this->_params[$param];
+//        } else {
+//            if ($triggerException) {
+//                throw new \Exception('Request parameter "' . $param . '" is not set');
+//            } else {
+//                return null;
+//            }
+//        }
+//    }
+
     /**
      * get client resource
      * @throws \Exception

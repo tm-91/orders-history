@@ -19,6 +19,10 @@ class Order
      */
 	protected $_tableOrdersHistory = false;
 
+    /**
+     * @var bool|\Logger
+     */
+	protected $logger = false;
 
 	public function __construct($id){
 		$this->_id = $id;
@@ -28,19 +32,22 @@ class Order
 	protected function _bootstrap(){
         $this->_tableOrders = new TableOrder();
         $this->_tableOrdersHistory = new TableOrderHistory();
+        $this->logger = \Bootstraper::logger();
+        $this->logger->_setScope(['Model', 'Order', 'id: ' . $this->getId()]);
     }
 
 	public static function addNewOrder($shopId, $orderId, array $currentState){
         $orderTable = new TableOrder();
         $orderTable->insertOrder($shopId, $orderId, $currentState);
         $id = \DbHandler::getDb()->lastInsertId();
-        \Bootstraper::logger()->debug('Created new order id ' . $id . ' (shop id ' . $orderId . ') in shop id ' . $shopId);
+        \Bootstraper::logger()->debug("Created new order id $id (order id in shop: $orderId) in shop id $shopId; order data:\n", $currentState);
         return $id;
     }
 
     public static function getInstance($shopId, $orderId) {
         $orderTable = new TableOrder();
         if ($id = $orderTable->getOrderId($shopId, $orderId)){
+            \Bootstraper::logger()->debug('get order id ' . $id . ' (order id in shop: ' . $orderId . ') from shop id ' . $shopId);
             return new self($id);
         }
         throw new \Exception('Did not found order id: ' . $orderId . ' in shop id: ' . $shopId);
@@ -58,7 +65,9 @@ class Order
      * @return array|bool
      */
     public function getCurrentData() {
-        return $this->_tableOrders->getCurrentData($this->getId());
+        $data = $this->_tableOrders->getCurrentData($this->getId());
+        $this->logger->debug('get current state data', $data);
+        return $data;
     }
 
     /**
@@ -66,13 +75,23 @@ class Order
      */
     public function updateCurrentData(array $data) {
         $this->_tableOrders->updateCurrentData($this->getId(), $data);
+        $this->logger->debug('updated current state data; current data:', $data);
     }
 
     /**
-     * @return array|bool array of \Application\Model\Entity\OrderChange objects
+     * @return array|bool array of \Application\Model\Helper\OrderHistoryEntry objects
      */
     public function getHistory(){
-		return $this->_tableOrdersHistory->getHistory($this->getId());
+		$history = $this->_tableOrdersHistory->getHistory($this->getId());
+		$this->logger->debug('get history entries. Amount: ' . count($history));
+		foreach ($history as $entry) {
+            $this->logger->debug("Entry:");
+            $this->logger->debug('date: ' . $entry->getDate('Y-m-d H:i:s'));
+            $this->logger->debug('added data: ', $entry->getAddedData());
+            $this->logger->debug('edited data: ', $entry->getEditedData());
+            $this->logger->debug('removed data: ', $entry->getRemovedData());
+        }
+		return $history;
 	}
 
 	public function insertHistory(HistoryEntry $historyEntry){
@@ -83,6 +102,11 @@ class Order
             $historyEntry->getEditedData(),
             $historyEntry->getRemovedData()
         );
+        $this->logger->debug("Added order history entry");
+        $this->logger->debug('date: ' . $historyEntry->getDate('Y-m-d H:i:s'));
+        $this->logger->debug('added data: ', $historyEntry->getAddedData());
+        $this->logger->debug('edited data: ', $historyEntry->getEditedData());
+        $this->logger->debug('removed data: ', $historyEntry->getRemovedData());
     }
 
     /**
@@ -112,7 +136,7 @@ class Order
                             $d = $findDiff($value, $valueCompare);
                             foreach ($d as $type => $delta) {
                                 if ($delta) {
-                                    $outcome[$type] = [$key => $delta];
+                                    $outcome[$type][$key] = $delta;
                                 }
                             }
                         } else {
@@ -144,7 +168,7 @@ class Order
                                     $d3 = $findDiff($baseSubVal, $valueCompare[$baseSubKey]);
                                     foreach ($d3 as $type => $delta) {
                                         if ($delta) {
-                                            $outcome[$type] = [$key => [$baseSubKey => $delta]];
+                                            $outcome[$type][$key][$baseSubKey] = $delta;
                                         }
                                     }
                                 }
@@ -247,7 +271,7 @@ class Order
             $time = new \DateTime();
             $time->setTimestamp($_SERVER['REQUEST_TIME']);
         }
-
+        $this->logger->debug("comparing current order data with: ", $data);
         $delta = $findDiff($currentOrder, $data, $includeAdditionalFields);
         $entry = new \Application\Model\Helper\OrderHistoryEntry($this->getId(), $time);
         $entry->setRemovedData($delta['R']);
@@ -257,11 +281,14 @@ class Order
     }
 
     public function removeOrder(){
-        $this->_tableOrders->removeOrder($this->getId());
+        $id = $this->getId();
+        $this->_tableOrders->removeOrder($id);
+        $this->logger->debug('Removed order from database');
     }
 
     public function clearHistory(){
         $this->_tableOrdersHistory->removeOrderHistory($this->getId());
+        $this->logger->debug('Removed order history entries');
     }
 
 }

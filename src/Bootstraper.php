@@ -12,7 +12,7 @@ class Bootstraper
      * @return bool|\Logger
      */
     public static function logger(){
-        return self::$_logger;
+        return new \Logger(self::getConfig());
     }
 
     public static function processRequestUrl(){

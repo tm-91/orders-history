@@ -38,6 +38,11 @@ class Shop
 
     protected $_configs;
 
+    /**
+     * @var \Logger
+     */
+    protected $logger;
+
     public function __construct($shopId){
         $this->_id = $shopId;
         $this->_bootstrap();
@@ -49,6 +54,8 @@ class Shop
         $this->_tableOrders = new TableOrders();
         $this->_customQueries = new TableComplexQueries();
         $this->_configs = \Bootstraper::getConfig();
+        $this->logger = \Bootstraper::logger();
+        $this->logger->_setScope(['Model', 'Shop', 'id: ' . $this->getId()]);
     }
 
     protected function _getConfig($key = null){
@@ -61,6 +68,7 @@ class Shop
     public static function getInstance($license){
         $tableShops = new TableShops();
         if ($id = $tableShops->getShopId($license)) {
+            \Bootstraper::logger()->debug('Get shop id ' . $id);
             return new self($id);
         }
         throw new \Exception('Did not found shop with license: ' . $license);
@@ -149,18 +157,22 @@ class Shop
 
     public static function isInstalled($id){
         $tableShops = new TableShops();
-        return $tableShops->select(
+        $installed = $tableShops->select(
             [TableShops::COLUMN_INSTALLED],
             [TableShops::COLUMN_ID => $id]
         ) == 1 ? true : false;
+        \Bootstraper::logger()->debug('checking if shop id ' . $id  . ' is installed: ' . ($installed == false ? 'not' : '') . 'installed');
+        return $installed;
     }
 
     public static function isInstalledByLicense($license) {
         $tableShops = new TableShops();
-        return $tableShops->select(
+        $installed = $tableShops->select(
             [TableShops::COLUMN_INSTALLED],
             [TableShops::COLUMN_LICENSE => $license]
         ) == 1 ? true : false;
+        \Bootstraper::logger()->debug('checking if shop with license ' . $license  . ' is installed: ' . ($installed == false ? 'not' : '') . 'installed');
+        return $installed;
     }
 
     public function getId(){
@@ -220,6 +232,7 @@ class Shop
             ]
         );
         $client->setAccessToken($this->getToken()->accessToken());
+        $this->logger->debug('instatiated SDK client');
         return $client;
     }
 
@@ -262,6 +275,7 @@ class Shop
 
         $newToken = new Tokens($tokens['access_token'], $tokens['refresh_token'], $expirationDate);
         $this->_token = $newToken;
+        $this->logger->debug('refreshed tokens');
         return $this->getToken();
     }
 
@@ -300,6 +314,7 @@ class Shop
                 TableAccessTokens::COLUMN_REFRESH_TOKEN => null
             ]
         );
+        $this->logger->debug('Uninstalled shop');
     }
 
     public function upgrade(array $upgradeData){
@@ -309,5 +324,6 @@ class Shop
                 TableShops::COLUMN_VERSION => $upgradeData['application_version']
             ]
         );
+        $this->logger->debug('Upgraded shop');
     }
 }

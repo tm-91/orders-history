@@ -27,6 +27,7 @@ class Logger extends \DreamCommerce\ShopAppstoreLib\Logger
     public function _setScope(array $scope) {
         $this->_scope = $scope;
         $this->_scopeString = $this->_toScopeString($scope);
+        return $this;
     }
 
     /**
@@ -40,6 +41,7 @@ class Logger extends \DreamCommerce\ShopAppstoreLib\Logger
             $this->_scope[] = $scope;
             $this->_scopeString .= $this->_toScopeString([$scope]);
         }
+        return $this;
     }
 
     /**
