@@ -3,12 +3,9 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Dec 02, 2018 at 03:26 PM
+-- Generation Time: Jan 23, 2019 at 10:49 PM
 -- Server version: 5.7.21-20-log
 -- PHP Version: 5.6.34
-
-SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -63,8 +60,8 @@ CREATE TABLE IF NOT EXISTS `orders` (
   `shop_order_id` int(10) NOT NULL,
   `order_current_data` blob NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_orders_shop_id_order_id` (`shop_id`,`shop_order_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=6 ;
+  UNIQUE KEY `index_orders_shop_id_order_id` (`shop_id`,`shop_order_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=235 ;
 
 -- --------------------------------------------------------
 
@@ -81,7 +78,7 @@ CREATE TABLE IF NOT EXISTS `orders_history` (
   `removed` blob,
   PRIMARY KEY (`id`),
   KEY `fk_orders_history_order_id` (`order_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=60 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=134 ;
 
 -- --------------------------------------------------------
 
