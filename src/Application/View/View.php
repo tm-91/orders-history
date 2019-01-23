@@ -11,69 +11,80 @@ class View
      */
     protected $_logger = false;
 
+    protected $translations = false;
+
 	public function __construct($viewDirectory, \Logger $logger){
         $this->_viewDirectory = $viewDirectory;
         $logger->_addScope('View');
         $this->_logger = $logger;
 	}
 
-	public function setParams(array $params){
-		$this->_params = array_merge($this->_params, $params);
-	}
+	public function setTranslations(array $translations) {
+	    $this->translations = $translations;
+    }
 
-	public function unsetParam($name) {
-		unset($this->_params[$name]);
-	}
+//	public function setParams(array $params){
+//		$this->_params = array_merge($this->_params, $params);
+//	}
+//
+//	public function unsetParam($name) {
+//		unset($this->_params[$name]);
+//	}
+//
+//	public function isSetParam($name){
+//		return array_key_exists($name, $this->_params);
+//	}
+//
+//	public function getParam($name = null){
+//		if ($name === null) {
+//		    return $this->_params;
+//        } else {
+//            if ($this->isSetParam($name)) {
+//                return $this->_params[$name];
+//            }
+//            return null;
+//        }
+//	}
 
-	public function isSetParam($name){
-		return array_key_exists($name, $this->_params);
-	}
+	public function renderHeader(){
+        require __DIR__ . DIRECTORY_SEPARATOR . 'header.php';
+    }
 
-	public function getParam($name = null){
-		if ($name === null) {
-		    return $this->_params;
-        } else {
-            if ($this->isSetParam($name)) {
-                return $this->_params[$name];
-            }
-            return null;
-        }
-	}
+	public function renderFooter(){
+        require __DIR__ . DIRECTORY_SEPARATOR . 'footer.php';
+    }
 
     public function render(array $params = null){
         $this->_logger->debug('rendering ' . $this->_viewDirectory);
-        if ($params) {
-            $this->setParams($params);
-        }
         $filePath = __DIR__ . DIRECTORY_SEPARATOR . $this->_viewDirectory . '.php';
         if (file_exists($filePath)) {
-            extract($this->_params);
-            require __DIR__ . DIRECTORY_SEPARATOR . $this->_viewDirectory . '.php';
+            if ($params) {
+                extract($params);
+            }
+            require $filePath;
         } else {
             throw new \Exception('Did not found view file: ' . $filePath);
         }
     }
 
-	public static function echoRec($array, array $translations = null) {
-	    echo '<div style="">';
-		foreach ($array as $key => $val) {
-			if (is_array($val)) {
-			    if ($translations && isset($translations[$key])){
-			        $key = $translations[$key];
-                }
-                if (!is_numeric($key)){
-                	echo '<div><h3>' . $key . '</h3></div>';
-            	}
-				static::echoRec($val, $translations);
-			} else {
+    public static function echoRec($array, array $translations = null) {
+        foreach ($array as $key => $val) {
+            if (is_array($val)) {
                 if ($translations && isset($translations[$key])){
                     $key = $translations[$key];
                 }
-				echo '<div>' . $key . ' : ' . $val . '</div>';
-			}
-		}
-		echo '</div>';
-	}
+                if (!is_numeric($key)){
+                    echo '<div class="row"><div class="key header"><h3>' . $key . '</h3></div></div>';
+                }
+                static::echoRec($val, $translations);
+            } else {
+                if ($translations && isset($translations[$key])){
+                    $key = $translations[$key];
+                }
+                echo '<div class="row"><div class="key">' . $key . ': </div><div class="val"> ' . $val . '</div></div>';
+            }
+        }
+    }
 
 	public function logger(){
 		return $this->_logger;

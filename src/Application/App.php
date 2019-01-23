@@ -5,11 +5,6 @@ use \Core\Model\Shop;
 
 class App extends \Core\AbstractApp
 {
-
-    /**
-     * @var null|\DreamCommerce\ShopAppstoreLib\Client
-     */
-    protected $_client = null;
     /**
      * @var string default locale
      */
@@ -19,11 +14,6 @@ class App extends \Core\AbstractApp
      * @var Shop
      */
     protected $_shop = false;
-
-    /**
-     * @var array url parameters storage
-     */
-    protected $_params = array();
 
     protected $_defaultController = 'Index';
     protected $_defaultAction = 'index';
@@ -43,24 +33,16 @@ class App extends \Core\AbstractApp
 
         $this->_params = $_GET;
 
-        // check request hash and variables
         $this->validateRequest();
 
         $this->_locale = basename($this->getParam('translations'));
 
         $this->_shop = Shop::getInstance($this->getParam('shop'));
-        // detect if shop is already installed
-        if (!$this->_shop) {
-            throw new \Exception('shop is not installed! license: ' . $this->getParam('shop'));
-        }
 
         // refresh token
         if (strtotime($this->_shop->getToken()->expiresAt() - time() < 86400)) {
             $this->_shop->refreshToken();
         }
-
-        // instantiate SDK client
-        $this->_client = $this->_shop->instantiateSDKClient();
     }
 
     public function run(array $data = null)
@@ -71,36 +53,6 @@ class App extends \Core\AbstractApp
 
     public function shop(){
         return $this->_shop;
-    }
-
-//    public function getParam($param = null, $triggerException = true)
-//    {
-//        if ($param === null) {
-//            return $this->_params;
-//        }
-//        if (isset($this->_params[$param])) {
-//            return $this->_params[$param];
-//        } else {
-//            if ($triggerException) {
-//                throw new \Exception('Request parameter "' . $param . '" is not set');
-//            } else {
-//                return null;
-//            }
-//        }
-//    }
-
-    /**
-     * get client resource
-     * @throws \Exception
-     * @return \DreamCommerce\ShopAppstoreLib\Client|null
-     */
-    public function getClient()
-    {
-        if ($this->_client === null) {
-            throw new \Exception('Client is NOT instantiated');
-        }
-
-        return $this->_client;
     }
 
     /**
@@ -127,24 +79,20 @@ class App extends \Core\AbstractApp
             throw new \Exception('Invalid request. "translations" parameter has not been provided');
         }
 
-        $params = array(
+        $params = [
             'place' => $this->getParam('place'),
             'shop' => $this->getParam('shop'),
             'timestamp' => $this->getParam('timestamp'),
-        );
+        ];
 
         ksort($params);
-        $parameters = array();
+        $parameters = [];
         foreach ($params as $k => $v) {
             $parameters[] = $k . "=" . $v;
         }
-        $p = join("&", $parameters);
-
-
-        $hash = hash_hmac('sha512', $p, self::getConfig('appstoreSecret'));
-
+        $hash = hash_hmac('sha512', join("&", $parameters), self::getConfig('appstoreSecret'));
         if ($hash != $this->getParam('hash')) {
-            throw new \Exception('Invalid request');
+            throw new \Exception('Invalid request. Wrong hash');
         }
     }
 
@@ -158,13 +106,14 @@ class App extends \Core\AbstractApp
     }
 
     public function getView($viewPath = null){
-        $translations = require 'translations.php';
-        $params['translations'] = $translations[$this->getLocale()];
+        $trans = require 'translations.php';
         $namespace = '\\' . self::MODULE_NAME . '\\' . self::VIEW_NAMESPACE . '\\' . 'View';
         if ($viewPath == null) {
             $viewPath = $this->_calledController . DIRECTORY_SEPARATOR . ucfirst($this->_calledAction);
         }
-        return new $namespace($viewPath, $this->logger());
+        $view = new $namespace($viewPath, $this->logger());
+        $view->setTranslations($trans[$this->getLocale()]);
+        return $view;
     }
 
     public function handleException(\Exception $exception)

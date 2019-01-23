@@ -9,11 +9,11 @@
 		<?php if ($addedData = $entry->getAddedData()): ?>
 		<div class="entry_data entry_column added">
 			<div class="header">
-				Dodano:
+                <h2>Dodano</h2>
 			</div>
 			<div class="content">
 				<?php
-				 \Application\View\View::echoRec($addedData, $translations);
+				 \Application\View\View::echoRec($addedData, $this->translations);
 				?>
 			</div>
 		</div>
@@ -22,11 +22,11 @@
 		<?php if ($editedData = $entry->getEditedData()): ?>
 		<div class="entry_data entry_column edited">
 			<div class="header">
-				Edytowano:
+				Edytowano
 			</div>
 			<div class="content">
 				<?php
-				 \Application\View\View::echoRec($editedData, $translations);
+				 \Application\View\View::echoRec($editedData, $this->translations);
 				?>
 			</div>
 		</div>
@@ -35,11 +35,11 @@
 		<?php if ($removedData = $entry->getRemovedData()): ?>
 		<div class="entry_data entry_column removed">
 			<div class="header">
-				Usunieto:
+                Usunieto
 			</div>
 			<div class="content">
 				<?php
-				 \Application\View\View::echoRec($removedData, $translations);
+				 \Application\View\View::echoRec($removedData, $this->translations);
 				?>
 			</div>
 		</div>

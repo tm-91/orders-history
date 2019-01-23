@@ -22,9 +22,6 @@ class Index extends AbstractController
      */
     public function installAction($arguments)
     {
-//        $this->billing()->installShop($arguments);
-//        $this->_getShopOrders(\Core\Model\Shop::getInstance($arguments['shop']));
-
         $shop = Shop::install(
             $arguments['shop'],
             $arguments['shop_url'],
@@ -43,10 +40,8 @@ class Index extends AbstractController
                         $resource[$webhookField] = $resource[$resourceField];
                         unset($resource[$resourceField]);
                     } else {
-                        // echo "resource array field \"$resourceField\" is not mapped\n";
                     }
                 } else {
-                    // echo "resource array field \"$resourceField\" does not exists\n";
                 }
             }
             return $resource;
@@ -60,56 +55,44 @@ class Index extends AbstractController
             'delivery_address' => 'deliveryAddress',
         ];
 
-        $log = \Bootstraper::logger();
-        $log->_addScope(['_fetchAndAddShopOrders']);
-        $log->debug('going to fetch orders and add to db');
+//        $log = \Bootstraper::logger();
+//        $log->_addScope(['_fetchAndAddShopOrders']);
+//        $log->debug('going to fetch orders and add to db');
         $client = $shop->instantiateSDKClient();
-        $log->debug('created sdk client');
+//        $log->debug('created sdk client');
         $orderResource = new \DreamCommerce\ShopAppstoreLib\Resource\Order($client);
-        $log->debug('created dc resource order');
+//        $log->debug('created dc resource order');
         $orderProductsResource = new \DreamCommerce\ShopAppstoreLib\Resource\OrderProduct($client);
-        $log->debug('created dc resource order products');
+//        $log->debug('created dc resource order products');
         $pageCount = 1;
         do {
             $page = $orderResource->limit(50)->page($pageCount)->get();
             foreach ($page as $order) {
-                $log->debug('got requested order with id: ' . $order['order_id']);
+//                $log->debug('got requested order with id: ' . $order['order_id']);
                 $orderContent = json_decode(json_encode($order->getArrayCopy()), true);
-                $log->debug('resource order: ', $orderContent);
+//                $log->debug('resource order: ', $orderContent);
                  // 1. pobierz wszystkie produkty danego zamówienia
                 // todo
                 $productsPageCount = 1;
                 $productsContent = [];
                 do {
                     $productsPage = $orderProductsResource->limit(50)->filters(['order_id' => $order['order_id']])->get();
-                    $log->debug('amount of received order products: ' . count($productsPage));
+//                    $log->debug('amount of received order products: ' . count($productsPage));
                     // 2. rzutuj arrayObject do array
                     $productsContent = array_merge($productsContent, json_decode(json_encode($productsPage->getArrayCopy(), true)));
-                    $log->debug('resource order products: ', $productsContent);
+//                    $log->debug('resource order products: ', $productsContent);
                 } while ($productsPageCount++ < $productsPage->getPageCount());
                  // 3. zmapuj tabele zamówienia wedłóg pól webhooka
                 $orderContent = $mapResourceToWebhook($orderContent, $map);
                  // 4. dodaj pole produkty i przypisz do niego tabele z produktami zamówienia
                 $orderContent['products'] = $productsContent;
                  // 5. dodaj zamówienie z przygotowanymi danymi
-                $log->debug('prepared order data: ', $orderContent);
+//                $log->debug('prepared order data: ', $orderContent);
                 $id = $shop->addOrder($orderContent['order_id'], $orderContent);
 
             }
         } while ($pageCount++ < $page->getPageCount());
     }
-    /*protected function _fetchAndAddShopOrders(\Core\Model\Shop $shop){
-        $orderResource = new \DreamCommerce\ShopAppstoreLib\Resource\Order($shop->instantiateSDKClient());
-        $pageCount = 1;
-        do {
-            $page = $orderResource->limit(50)->page($pageCount)->get();
-            foreach ($page as $order) {
-                $content = json_decode(json_encode($order->getArrayCopy()), true);
-                $id = $shop->addOrder($order['order_id'], $content);
-                \Bootstraper::logger()->debug('Added order id: ' . $order['order_id'] . ' (id in database table: ' . $id . ')');
-            }
-        } while ($pageCount++ < $page->getPageCount());
-    }*/
 
     /**
      * client paid for the app
@@ -143,10 +126,6 @@ class Index extends AbstractController
      * @param array $arguments
      * @throws \Exception
      */
-    /*public function upgradeAction($arguments)
-    {
-        $this->billing()->upgrade($arguments);
-    }*/
     public function upgradeAction($arguments)
     {
         $shop = Shop::getInstance($arguments['shop']);
@@ -166,12 +145,6 @@ class Index extends AbstractController
      * @param array $arguments
      * @throws \Exception
      */
-    /*public function uninstallAction($arguments)
-    {
-        $shop = \Core\Model\Shop::getInstance($arguments['shop']);
-        $shop->removeOrdersAndHistory();
-        $this->billing()->uninstall($arguments);
-    }*/
     public function uninstallAction($arguments)
     {
         $shop = Shop::getInstance($arguments['shop']);

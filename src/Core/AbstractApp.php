@@ -23,7 +23,10 @@ abstract class AbstractApp implements AppInterface
      */
     protected $_logger = false;
 
-    protected $_params = [];
+    /**
+     * @var bool|array
+     */
+    protected $_params = false;
 
     public function bootstrap(){
         $logger = new \Logger(static::getConfig());
@@ -55,23 +58,21 @@ abstract class AbstractApp implements AppInterface
             throw new \Exception('invalid argument passed to dispatcher method');
         }
         $controller = false;
-        $controllerName = false;
         $action = false;
-        $actionName = false;
         switch (count($urlElements)) {
             case 0:
-                $controllerName = static::DEFAULT_CONTROLLER;
-                $actionName = static::DEFAULT_ACTION;
+                $controller = static::DEFAULT_CONTROLLER;
+                $action = static::DEFAULT_ACTION;
                 break;
             case 1:
-                $controllerName = ucfirst(array_shift($urlElements));
-                $actionName = static::DEFAULT_ACTION;
+                $controller = ucfirst(array_shift($urlElements));
+                $action = static::DEFAULT_ACTION;
                 break;
             default:
-                $controllerName = ucfirst(array_shift($urlElements));
-                $actionName = strtolower(array_shift($urlElements));
+                $controller = ucfirst(array_shift($urlElements));
+                $action = strtolower(array_shift($urlElements));
         }
-        $this->callControllerAction($controllerName, $actionName, $urlElements);
+        $this->callControllerAction($controller, $action, $urlElements);
     }
 
     public function callControllerAction($controllerName, $actionName, array $params = null) {
@@ -92,12 +93,12 @@ abstract class AbstractApp implements AppInterface
         $controller = new $controller($this);
         $success = call_user_func_array(array($controller, $action), $params);
         if ($success === false) {
-            throw new \Exception('Failed to run method "' . $action . '" of class "' . $controller . '"');
+            throw new \Exception('Failed to run controller "' . $controller . '" action "' . $action . '"');
         }
     }
 
     public function handleException(\Exception $exception) {
-        static::logger()->error(
+        $this->logger()->error(
             'Message: ' . $exception->getMessage()  . PHP_EOL .
             'Code: ' . $exception->getCode() . PHP_EOL .
             'Stack trace: ' . PHP_EOL . $exception->getTraceAsString()
@@ -114,10 +115,13 @@ abstract class AbstractApp implements AppInterface
 
     public function getParam($param = null, $triggerException = true)
     {
+        if ($this->_params === false) {
+            throw new \Exception('App params array has not been initialized');
+        }
         if ($param === null) {
             return $this->_params;
         }
-        if (isset($this->_params[$param])) {
+        if (array_key_exists($param, $this->_params)) {
             return $this->_params[$param];
         } else {
             if ($triggerException) {

@@ -17,13 +17,15 @@ class App extends \Core\AbstractApp
 
     public function bootstrap(){
         parent::bootstrap();
-        if (empty($_POST['shop_url']) || empty($_POST['action'])) {
-            die;
-        }
+
+        $this->_params = $_POST;
+
+        $this->validateRequest();
+
         try {
             // instantiate a handler
             $handler = $this->_handler = new Handler(
-                $_POST['shop_url'], self::getConfig('appId'), self::getConfig('appSecret'), self::getConfig('appstoreSecret')
+                $this->getParam('shop_url'), self::getConfig('appId'), self::getConfig('appSecret'), self::getConfig('appstoreSecret')
             );
             // subscribe to particular events
             $controller = new \BillingSystem\Controller\Index($this);
@@ -44,7 +46,6 @@ class App extends \Core\AbstractApp
      */
     public function dispatch(array $data = null)
     {
-
         try {
             $this->_handler->dispatch($data);
         } catch (HandlerException $ex) {
@@ -59,5 +60,16 @@ class App extends \Core\AbstractApp
     public function run(array $arguments = null){
         $this->bootstrap();
         $this->dispatch();
+    }
+
+    public function validateRequest(){
+        if ($this->getParam('shop_url', false) == null){
+            $this->logger()->error('Params: ', $this->getParam());
+            throw new \Exception('Invalid request. Parameter "shop_url" has not been set');
+        }
+        if ($this->getParam('action', false) == null){
+            $this->logger()->error('Params: ', $this->getParam());
+            throw new \Exception('Invalid request. Parameter "action" has not been set');
+        }
     }
 }

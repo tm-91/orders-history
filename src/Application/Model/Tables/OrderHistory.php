@@ -72,7 +72,6 @@ class OrderHistory
             'INSERT INTO orders_history (order_id, date, ' . implode(', ', $columns).
             ') VALUES (:order_id, :date, ' . implode(', ', array_keys($values)) . ');');
         $stm->bindValue(':order_id', $orderId, \PDO::PARAM_INT);
-//        $stm->bindValue(':date', $date->format('Y-m-d H:i:s'));
         $stm->bindValue(':date', $date->format('Y-m-d H:i:s'), \PDO::PARAM_STR);
         foreach ($values as $key => $val) {
             $stm->bindValue($key, $val, \PDO::PARAM_STR);

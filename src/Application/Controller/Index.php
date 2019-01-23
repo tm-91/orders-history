@@ -15,7 +15,7 @@ class Index extends \Core\Controller\Controller
         }
 
         if ($order !== false) {
-            $history= $order->getHistory();
+            $history = $order->getHistory();
         } else {
             $history = [];
         }
