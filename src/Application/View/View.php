@@ -23,29 +23,6 @@ class View
 	    $this->translations = $translations;
     }
 
-//	public function setParams(array $params){
-//		$this->_params = array_merge($this->_params, $params);
-//	}
-//
-//	public function unsetParam($name) {
-//		unset($this->_params[$name]);
-//	}
-//
-//	public function isSetParam($name){
-//		return array_key_exists($name, $this->_params);
-//	}
-//
-//	public function getParam($name = null){
-//		if ($name === null) {
-//		    return $this->_params;
-//        } else {
-//            if ($this->isSetParam($name)) {
-//                return $this->_params[$name];
-//            }
-//            return null;
-//        }
-//	}
-
 	public function renderHeader(){
         require __DIR__ . DIRECTORY_SEPARATOR . 'header.php';
     }
